@@ -212,3 +212,7 @@ class Player(QtCore.QObject):
             return '0.00'
         return self.msecondsToTime(self.duration)
 
+    def getBandCount(self):
+        vlc.libvlc_audio_equalizer_set_amp_at_index(self.equalizer, 18.5, 8)
+        return vlc.libvlc_audio_equalizer_get_band_count()
+
