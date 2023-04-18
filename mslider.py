@@ -76,7 +76,7 @@ class MSlider(QtWidgets.QWidget):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
-        painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+        #painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
         ww = self.width()
         wh = self.height()
         p = round(ww*(self.pos/self.maxpos))
@@ -123,7 +123,7 @@ class MSlider(QtWidgets.QWidget):
         else:
             cw = fgSR.width() - (ww-p)
             painter.drawPixmap(QtCore.QRect(x,y,cw,fgSR.height()),self.images[2],QtCore.QRect(0,0,cw,self.images[2].height()))
-
+        painter.end()
 
     def resizeEvent(self, event):
         self.update()

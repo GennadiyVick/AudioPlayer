@@ -9,13 +9,19 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(302, 354)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setStyleSheet("QWidget {\n"
-"    background: #262638;\n"
-"    color: #aaa;\n"
-"}\n"
-"QWidget#centralwidget {\n"
-"    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #262638, stop:0.5 #50586b, stop:1 #223);\n"
-"}")
+        self.centralwidget.setStyleSheet('''QWidget {background: #262638; color: #aaa;}
+QWidget#centralwidget {background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #262638, stop:0.5 #50586b, stop:1 #223);}
+QScrollBar {border-radius: 5px;}
+QScrollBar:vertical {border-radius: 5px; width: 10px;}
+QScrollBar:horizontal {border-top: 1px solid #1c1c1c; height: 10px; }
+QScrollBar::handle {margin: -1px; background: #446; border: 1px solid #1c1c1c;}
+QScrollBar::handle:vertical {min-height: 10px;}
+QScrollBar::handle:horizontal {min-width: 10px;}
+QScrollBar::handle:hover {background: #4ab;}
+QScrollBar::left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow,
+QScrollBar::down-arrow, QScrollBar::sub-line, QScrollBar::add-line,
+QScrollBar::add-page, QScrollBar::sub-page {
+  background: #2e2e3e; height: 0; width: 0; border-radius: 0; border: 0;}''')
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout_2.setSpacing(2)
@@ -251,23 +257,18 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(9)
         self.listView.setFont(font)
-        self.listView.setStyleSheet("QListView { \n"
-"    background: rgba(0, 0, 0, 60);\n"
-"    border-style: inset;\n"
-"    border-width: 1px;\n"
-"    border-color: #445;\n"
-"    color: #999;\n"
-"    border-radius: 10px;\n"
-"}\n"
-"QListView::item:selected { background: rgba(0, 0, 0, 60); border-width: 1px; border-style: inset; border-color: #345; border-radius: 6px; color: #fff;}\n"
-"QListView::item:focus { background: rgba(0, 30, 60, 90); border-width: 1px; border-style: inset; border-color: #345; border-radius: 6px;}\n"
-"QListView::item:focus:hover { background: rgba(0, 30, 60, 90); color: #fff;}\n"
-"QListView::item:hover { background: transparent; color: #eee;}\n"
-"QListView::item:selected:hover {\n"
-"    background: rgba(0, 0, 0, 60); \n"
-"    color:  aqua;\n"
-"}\n"
-"")
+        self.listView.setStyleSheet('''QListView {
+    background: rgba(0, 0, 0, 60);
+    border-style: inset;
+    border-width: 1px;
+    border-color: #445;
+    color: #999;
+    border-radius: 10px;}
+QListView::item:selected { background: rgba(0, 0, 0, 60); border-width: 1px; border-style: inset; border-color: #345; border-radius: 6px; color: #fff;}
+QListView::item:focus { background: rgba(0, 30, 60, 90); border-width: 1px; border-style: inset; border-color: #345; border-radius: 6px;}
+QListView::item:focus:hover { background: rgba(0, 30, 60, 90); color: #fff;}
+QListView::item:hover { background: transparent; color: #eee;}
+QListView::item:selected:hover {background: rgba(0, 0, 0, 60); color:  aqua;}''')
         self.listView.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.listView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.listView.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)

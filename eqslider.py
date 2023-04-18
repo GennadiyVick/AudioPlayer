@@ -48,7 +48,7 @@ class EqSlider(QtWidgets.QWidget):
             y = self.knob.pos().y() + self.knob_topoffset
             h = h - y
             painter.drawPixmap(QtCore.QRect(self.p_line_xoffset,y,self.p_line.width(),h), self.p_line)
-
+        painter.end()
     #private slots...
 
     def knobMousePress(self, event):

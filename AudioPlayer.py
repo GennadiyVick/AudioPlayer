@@ -14,7 +14,7 @@ Linux:
     2. pip3 install PyQt5
     3. pip3 install python3-vlc
 
-Authon Roganov G.V. roganovg@mail.ru
+Author Roganov G.V. roganovg@mail.ru
 '''
 
 import sys
@@ -33,9 +33,8 @@ class AudioPlayer(QtWidgets.QMainWindow):
         #создание основных контролов и лейаутов происходит в классе Ui_MainWindow модуля mainwindow
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        #path - путь к плейлистам, указан путь к данному скрипту,
-        #однако правильней было бы его перенести в каталог пользователя.
-        self.path = os.path.dirname(os.path.realpath(__file__))
+        set = QtCore.QSettings(os.path.join('RoganovSoft', 'AudioPlayer'), "config")
+        self.path = os.path.dirname(set.fileName())
         #cоздаю свой контрол управления громкостью
         self.createVolumeControl()
         #контрол управления временем/позицией
@@ -60,7 +59,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         #проверяем входящие аргументы,если аудио файл открыли с помощью этого скрипта
         self.checkargv()
         #грузим настройки
-        self.loadSets()
+        self.loadSets(set)
 
         self.eqdialog = None
 
@@ -397,8 +396,8 @@ class AudioPlayer(QtWidgets.QMainWindow):
 
 
 
-    def loadSets(self):
-        set = QtCore.QSettings(os.path.join('RoganovSoft', 'AudioPlayer'), "config")
+    def loadSets(self, set):
+
         x = int(set.value("Main/left",0))
         y = int(set.value("Main/top",0))
         w = int(set.value("Main/width",0))
