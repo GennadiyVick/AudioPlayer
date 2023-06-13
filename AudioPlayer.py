@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 '''
 Audio player using libvlc and pyqt5
-
 INSTALLATION
 Window:
     1. download and install python from https://www.python.org/downloads/windows/
@@ -13,7 +12,6 @@ Linux:
     1. sudo apt-get install python3-pip
     2. pip3 install PyQt5
     3. pip3 install python3-vlc
-
 Author Roganov G.V. roganovg@mail.ru
 '''
 
