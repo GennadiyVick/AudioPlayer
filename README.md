@@ -1,6 +1,6 @@
 # AudioPlayer. 
 AudioPlayer based on libvlc for python and pyqt5 for gui. 
-
+![screenshot](https://github.com/GennadiyVick/AudioPlayer/blob/master/image.jpg)  
 ## Required:
 To run the program, you need python itself and the installed PyQt5 and libvlc modules.
 

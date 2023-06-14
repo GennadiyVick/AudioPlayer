@@ -137,7 +137,7 @@ class MVolume(QtWidgets.QWidget):
         pen = QtGui.QPen(QtGui.QBrush(gradient), self.linewidth)
         pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
-        painter.drawArc(drawingRect, self.startangle * 16, -self.currentAngle * 16)
+        painter.drawArc(drawingRect, int(self.startangle * 16), int(-self.currentAngle * 16))
         if (self.knob != None):
             x = (w - self.knob.width()) // 2
             y = (h - self.knob.height()) // 2

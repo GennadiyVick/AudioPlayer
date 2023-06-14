@@ -47,7 +47,8 @@ class EqSlider(QtWidgets.QWidget):
             h = self.wh - ofs * 2
             y = self.knob.pos().y() + self.knob_topoffset
             h = h - y
-            painter.drawPixmap(QtCore.QRect(self.p_line_xoffset,y,self.p_line.width(),h), self.p_line)
+            r = QtCore.QRect(int(self.p_line_xoffset), int(y), int(self.p_line.width()),int(h))
+            painter.drawPixmap(r, self.p_line)
         painter.end()
     #private slots...
 
@@ -70,7 +71,7 @@ class EqSlider(QtWidgets.QWidget):
             elif y > h:
                 y = h
             p = round((h - y) / h * self.maxpos)
-            self.knob.move(self.knob_left, y)
+            self.knob.move(int(self.knob_left), int(y))
             if p != self.pos:
                 self.pos = p
                 self.posChange.emit(self, self.pos)
@@ -83,7 +84,7 @@ class EqSlider(QtWidgets.QWidget):
         self.pos = pos
         h = self.wh - 18
         y = h - self.pos / self.maxpos * h
-        self.knob.move(self.knob_left,y)
+        self.knob.move(int(self.knob_left), int(y))
         self.update()
 
     def setMax(self, maxpos):
