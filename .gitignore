@@ -1,5 +1,8 @@
 /__pycache__
-/noused
-/images
+/res
 /.gitignore
 /*.plt
+/vlclib_player.zip
+/libbass.so
+/libbass_aac.so
+/AudioPlayer.desktop

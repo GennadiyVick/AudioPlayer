@@ -75,7 +75,10 @@ class MVolume(QtWidgets.QWidget):
 
     def setPos(self, value):
         if self.busy: return
-        if value > self.maxpos: return
+        if value > self.maxpos:
+            value = self.maxpos
+        elif value < 0:
+            value = 0
         self.position = value
         self.posToAngle()
         if self.updatebusy == 0: self.update()
@@ -182,3 +185,12 @@ class MVolume(QtWidgets.QWidget):
             self.position = p
             posChanged.emit(position)
         self.busy = False
+
+    def wheelEvent(self, event):
+        if event.angleDelta().y() > 0:
+            self.setPos(self.position+5)
+        else:
+            self.setPos(self.position-5)
+
+        self.posChanged.emit(self.position)
+

@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
-from mywidgets import MELabel
+from mywidgets import MouseWidget
 
 class EqSlider(QtWidgets.QWidget):
     posChange = QtCore.pyqtSignal(QtWidgets.QWidget, int)
@@ -17,12 +17,13 @@ class EqSlider(QtWidgets.QWidget):
         self.p_bg = QtGui.QPixmap(":/images/slider_bg.png")
         self.p_line = QtGui.QPixmap(":/images/eq_line.png")
         self.p_line_xoffset = (30 - self.p_line.width()) / 2
-        self.knob = MELabel(self)
+        self.knob = MouseWidget(self)
         self.knob.setMinimumSize(QtCore.QSize(22, 18))
         self.knob.setMaximumSize(QtCore.QSize(22, 18))
-        self.knob.setStyleSheet("QLabel  {background:  url(\":/images/slider_knob.png\") }\n"
-"QLabel:hover {background:  url(\":/images/slider_knob_h.png\")}")
-        self.knob.setText("")
+        self.knob.setStyleSheet('MouseWidget {background: #f0f;}')
+        #self.knob.setStyleSheet('background: url(":/images/slider_knob.png")')
+        self.knob.setStyleSheet("QLabel {background: url(\":/images/slider_knob.png\")}\n"
+        "QLabel:hover {background: url(\":/images/slider_knob_h.png\")}")
         self.knob_left = (self.ww - self.knob.width()) / 2
         self.knob_topoffset = self.knob.height() / 2
         self.knob.onMousePress.connect(self.knobMousePress)
