@@ -14,14 +14,13 @@ after installation, you need to install the `PyQt5` module, to do this in the co
 python -m pip install pyqt5
 ```
 the program will download and install the module.
-Then copy bass.dll to AudioPlayer.py directory from libs.zip/windows/x64, if you need support m4a, acc, wma see such libraryes in libs.zip/windows
+Then copy bass.dll to AudioPlayer.py directory from libs.zip/windows/x64, if you need support m4a and acc, wma formats see such libraryes in libs.zip/windows/aac and wma
 
 To run this program, you must enter in the console
 ```console
 python program_path\AudioPlayer.py
 ```
 You can also create a launch shortcut on the desktop.
-Then you need copy BASS library from archive to app. directory
 To run from a shortcut, use `pythonw` instead of `python`
 ```console
 pythonw program_path\AudioPlayer.py
@@ -41,7 +40,7 @@ To install the module in the console, enter
 sudo apt-get install python3-pyqt5
 ```
 module will be automatically downloaded and installed.
-Then copy libbass.so to AudioPlayer.py directory from libs.zip/linux/bass/x86_64, if you need support m4a, acc, wma see such libraryes in libs.zip/linux
+Then copy libbass.so to AudioPlayer.py directory from libs.zip/linux/bass/x86_64, if you need support m4a and acc format see library in libs.zip/linux/aac/x86_64/ and copy it also
 
 The program starts like this:
 ```console
