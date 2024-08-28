@@ -327,7 +327,7 @@ class BassPlayer:
             return False
         self.zerofft = False
 
-        bands = [0 for i in range(NumFFTBands)]
+        bands = [0] * NumFFTBands
         b0 = 0
         for i in range(NumFFTBands):
             peak = 0
