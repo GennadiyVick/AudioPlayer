@@ -6,3 +6,6 @@
 /libbass.so
 /libbass_aac.so
 /AudioPlayer.desktop
+/.idea
+/bass/__pycache__
+/isualwidget.py
