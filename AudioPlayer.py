@@ -586,13 +586,9 @@ class AudioPlayer(QtWidgets.QMainWindow):
         vol.endUpdate()
         self.vol = vol
 
-
     def isMusic(self, fn):
         ext = fn[-4:].lower()
         return ext in self.player.exts
-
-    #def keyPressEvent(self, event):
-    #    print(event.key())
 
     def loadPlayList(self):
         if self.ui.comboBox.count() == 0 or self.ui.comboBox.currentIndex() < 1:
@@ -682,13 +678,12 @@ class AudioPlayer(QtWidgets.QMainWindow):
 
 def main():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = Application(sys.argv)
-    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     if not app.lock():
         if len(sys.argv) > 1:
             send('\n'.join(sys.argv[1:]))
         return -42;
-    #app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(":/images/logo.png"))
     main = AudioPlayer(app)
     app.mainwindow = main

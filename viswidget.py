@@ -53,12 +53,6 @@ class VisWidget(QtWidgets.QWidget):
     def draw_type_0(self, painter):
         pen = QtGui.QPen()
         pen.setWidth(0)
-        painter.setPen(pen)
-        brush = QtGui.QBrush(QtGui.QColor(18, 18, 18))
-        painter.setBrush(brush)
-        painter.drawRoundedRect(0, 0, self.width(), self.height(), 8, 8)
-        # painter.setRenderHint(0)
-
         bcount = len(self.fftbands)
         if bcount == 0: return
         self.updatebusy += 1
@@ -107,20 +101,8 @@ class VisWidget(QtWidgets.QWidget):
                         self.passedcounter[i] += 1
 
     def draw_type_1(self, painter):
-        pen = QtGui.QPen()
-        pen.setWidth(0)
-        painter.setPen(pen)
-
         w = self.width() - 10
         h = self.height() - 10
-        # bg draw
-        grad = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(w, 0))
-        grad.setColorAt(0, QtGui.QColor(12, 12, 14))
-        grad.setColorAt(0.5, QtGui.QColor(15, 15, 24))
-        grad.setColorAt(1, QtGui.QColor(12, 12, 14))
-        brush = QtGui.QBrush(grad)
-        painter.setBrush(brush)
-        painter.drawRoundedRect(0, 0, self.width(), self.height(), 8, 8)
 
         bcount = len(self.fftbands)
         if bcount == 0: return
@@ -149,6 +131,20 @@ class VisWidget(QtWidgets.QWidget):
             return
         painter = QtGui.QPainter(self)
         #painter.setRenderHint(QtGui.QPainter.Antialiasing)
+
+        pen = QtGui.QPen()
+        pen.setWidth(0)
+        painter.setPen(pen)
+
+        # bg draw
+        grad = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(self.width(), 0))
+        grad.setColorAt(0, QtGui.QColor(12, 12, 14))
+        grad.setColorAt(0.5, QtGui.QColor(18, 18, 33))
+        grad.setColorAt(1, QtGui.QColor(12, 12, 14))
+        brush = QtGui.QBrush(grad)
+        painter.setBrush(brush)
+        painter.drawRoundedRect(0, 0, self.width(), self.height(), 8, 8)
+
         if self.draw_type == 0:
             self.draw_type_0(painter)
         else:
