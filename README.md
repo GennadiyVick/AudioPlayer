@@ -1,5 +1,5 @@
 # Audio player
-
+version: 2.3.3
 ## Based on the BASS library
 https://www.un4seen.com/bass.html
 
