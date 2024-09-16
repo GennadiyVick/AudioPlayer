@@ -3,6 +3,7 @@ from colorsys import hsv_to_rgb
 
 
 def get_color_spectr():
+    ''' get color spectr from red to blue '''
     side_percent = 9
     spectr_percent = 82
     color_spectr = []
@@ -130,7 +131,6 @@ class VisWidget(QtWidgets.QWidget):
         if self.updatebusy > 0:
             return
         painter = QtGui.QPainter(self)
-        #painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
         pen = QtGui.QPen()
         pen.setWidth(0)

@@ -56,6 +56,8 @@ class AudioPlayer(QtWidgets.QMainWindow):
         #создание основных контролов и лейаутов происходит в классе Ui_MainWindow модуля mainwindow
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.tray = None
+
         set = QtCore.QSettings(os.path.join('RoganovSoft', 'AudioPlayer'), "config")
         self.path = os.path.dirname(set.fileName())
         if not os.path.isdir(self.path):
@@ -92,7 +94,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.vol.setPos(self.player.get_volume())
         #грузим настройки
         self.loadSets(set)
-
+        self.initTray()
         self.read_attr_buffer = []
         self.read_attr_ontime = False
 
@@ -235,6 +237,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.ui.lEq.onClick.connect(self.eqClick)
         self.ui.comboBox.activated.connect(self.comboBoxActivated)
         self.ui.lclose.onClick.connect(self.close)
+        self.ui.lmin.onClick.connect(self.doMin)
 
         #регистрируем класс QAction исключительно для shortcut -  пробел для вызова паузы или плей
         # но вероятнее всего это не работает. т.к. фокус перехватывается контролами ComboBox(список плейлистов) и listView(плейлист)
@@ -675,6 +678,53 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.player.get_fftdata()
         self.ui.viswidget.updatefft(self.player.fftbands, self.player.zerofft)
 
+    def doShow(self):
+        self.tray.hide()
+        self.showNormal()
+        self.vistimer.start()
+
+    def doMin(self):
+        self.tray.show()
+        self.hide()
+        self.vistimer.stop()
+
+    def initTray(self):
+        self.tray = QtWidgets.QSystemTrayIcon(self)
+        icon = QtGui.QIcon(":/images/headphones.png")
+        self.tray.setIcon(icon)
+        self.tray.setToolTip("AudioPlayer")
+
+        show_action = QtWidgets.QAction("Show", self)
+        show_action.triggered.connect(self.doShow)
+
+        play_action = QtWidgets.QAction("Play or pause", self)
+        play_action.triggered.connect(self.player.play_pause)
+
+        play_next_action = QtWidgets.QAction("Play next", self)
+        play_next_action.triggered.connect(self.next)
+
+        play_prev_action = QtWidgets.QAction("Play prev", self)
+        play_prev_action.triggered.connect(self.prev)
+
+        quit_action = QtWidgets.QAction("Close", self)
+        quit_action.triggered.connect(self.close)
+
+        traymenu = QtWidgets.QMenu()
+        traymenu.addAction(show_action)
+        traymenu.addSeparator()
+        traymenu.addAction(play_action)
+        traymenu.addAction(play_next_action)
+        traymenu.addAction(play_prev_action)
+        traymenu.addSeparator()
+        traymenu.addAction(quit_action)
+
+        self.tray.setContextMenu(traymenu)
+        self.tray.activated.connect(self.trayActivated)
+
+
+    def trayActivated(self, reason):
+        if reason == QtWidgets.QSystemTrayIcon.Trigger:
+            self.doShow()
 
 def main():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
