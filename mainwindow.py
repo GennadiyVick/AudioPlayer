@@ -2,12 +2,16 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from mywidgets import MyLabel, MyComboBox, MyListView, CaptionWidget, VerSizeWidget
 from viswidget import VisWidget
+from lang import tr
+
+
 def labelstyle(images):
     if len(images) == 1:
         return 'QLabel {background:  url("'+images[0]+'") no-repeat center center }'
     elif len(images) == 2:
         return 'QLabel {background:  url("'+images[0]+'") no-repeat center center } QLabel:hover {background:  url("'+images[1]+'") no-repeat center center}'
     else: return ''
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -226,7 +230,8 @@ QScrollBar::add-page, QScrollBar::sub-page {background: transparent; height: 0; 
         self.lLoop.setText("")
         self.lLoop.setObjectName("lLoop")
         self.horizontalLayout_3.addWidget(self.lLoop)
-        self.lEq = MyLabel({'default':labelstyle([':/images/eq.png',':/images/eq_h.png'])}, self.btn_panel)
+        self.lEq = MyLabel({'default': labelstyle([':/images/eq.png', ':/images/eq_h.png']),
+                            'checked': labelstyle([':/images/eq_en.png', ':/images/eq_en_h.png'])}, self.btn_panel)
         self.lEq.setMinimumSize(QtCore.QSize(32, 32))
         self.lEq.setMaximumSize(QtCore.QSize(32, 32))
         self.lEq.setText("")
@@ -339,6 +344,12 @@ QListView::item:selected:hover {background: rgba(0, 0, 0, 60); color:  aqua;}'''
         self.hl_plalistselect_2.addWidget(self.l_clearplaylist)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.hl_plalistselect_2.addItem(spacerItem2)
+        self.l_version = QtWidgets.QLabel(self.centralwidget)
+        self.l_version.setObjectName('l_version')
+        self.l_version.setStyleSheet('QLabel#l_version{font-size: 7pt; color: #888;}')
+        self.l_version.setText('v. 2.3')
+        self.l_version.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignRight)
+        self.hl_plalistselect_2.addWidget(self.l_version)
         self.verticalLayout_2.addLayout(self.hl_plalistselect_2)
 
         #bottom widget for vertical size change
@@ -357,11 +368,10 @@ QListView::item:selected:hover {background: rgba(0, 0, 0, 60); color:  aqua;}'''
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        self.l_addplaylist.setToolTip(_translate("MainWindow", "Добавить плейлист"))
-        self.l_editplaylist.setToolTip(_translate("MainWindow", "Переименовать плейлист"))
-        self.l_delplaylist.setToolTip(_translate("MainWindow", "Удалить плейлист"))
-        self.l_addfile.setToolTip(_translate("MainWindow", "Добавить файл в плейлист"))
-        self.l_delfile.setToolTip(_translate("MainWindow", "Удалить файл из плейлиста"))
-        self.l_clearplaylist.setToolTip(_translate("MainWindow", "Очистить плейлист"))
+        self.l_addplaylist.setToolTip(tr("add_playlist"))
+        self.l_editplaylist.setToolTip(tr("rename_playlist"))
+        self.l_delplaylist.setToolTip(tr("remove_playlist"))
+        self.l_addfile.setToolTip(tr("add_track_to_playlist"))
+        self.l_delfile.setToolTip(tr("remove_track"))
+        self.l_clearplaylist.setToolTip(tr("clear_playlist"))
 import images_rc

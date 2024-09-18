@@ -9,7 +9,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from mywidgets import CaptionWidget, MyLabel, MyCheckBox
-
+from lang import tr
 
 class Ui_eq_window(object):
     def setupUi(self, dialog_window):
@@ -101,6 +101,6 @@ class Ui_eq_window(object):
         QtCore.QMetaObject.connectSlotsByName(self.eq_window)
 
     def retranslateUi(self, dialog_window):
-        self.l_caption.caption = "- - Эквалайзер - -"
+        self.l_caption.caption = tr("equalizer")
 
 import images_rc

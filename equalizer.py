@@ -1,11 +1,10 @@
-import sys
-import os
 from PyQt5 import QtGui, QtCore,QtWidgets
 from eqwindow import Ui_eq_window
 from eqslider import EqSlider
-import images_rc
+
 
 class Equalizer(QtWidgets.QWidget):
+    on_close = QtCore.pyqtSignal()
     def __init__(self, player = None):
         super(Equalizer, self).__init__()
         self.ui = Ui_eq_window()
@@ -78,3 +77,11 @@ class Equalizer(QtWidgets.QWidget):
 
     def cbEnableToggled(self):
         self.player.set_eqeffect(self.ui.cbEnable.isChecked())
+
+    def do_move(self, x, y):
+        self.move(x, y)
+
+    def closeEvent(self, event):
+        self.on_close.emit()
+        super().closeEvent(event)
+

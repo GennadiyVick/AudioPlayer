@@ -6,9 +6,11 @@ import time
 
 default_port = 51283
 
+
 class DGramServer(QtCore.QObject):
     onFinish = QtCore.pyqtSignal(str)
     onRead = QtCore.pyqtSignal(str)
+
     def __init__(self, thread, port=default_port):
         super().__init__()
         self.thread = thread
@@ -27,13 +29,13 @@ class DGramServer(QtCore.QObject):
             self.thread = None
             return
         except Exception as e:
-            print('error',e)
+            print('error', e)
             self.onFinish.emit(f'Ошибка: {str(e)}')
             self.thread.quit()
             self.thread = None
             return
         self.keep_running = True
-        sleepcount = 0
+
         while self.keep_running:
             data = self.sock.recvfrom(65536)
             if len(data) > 0:
@@ -45,10 +47,11 @@ class DGramServer(QtCore.QObject):
         self.thread.quit()
         self.thread = None
 
-def send(data, ipport=('localhost',default_port)):
+
+def send(data, ip_port=('localhost', default_port)):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        sock.sendto(data.encode('utf-8'), ipport)
+        sock.sendto(data.encode('utf-8'), ip_port)
     except socket.error:
         print('sender error connection')
         return False

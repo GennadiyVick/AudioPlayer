@@ -7,8 +7,8 @@ import os
 
 avial_exts = '.mp3.wav'
 NumFFTBands = 44
-NumEQBands  = 10
-EQBandWidth  = [4, 4, 4, 4, 5, 6, 5, 4, 3, 3]
+NumEQBands = 10
+EQBandWidth = [3, 4, 4, 4, 5, 6, 5, 4, 3, 3]
 EQFreq = [80, 160, 320, 600, 1000, 3000, 6000, 10000, 12000, 14000]
 PlayMode_Standby = 0
 PlayMode_Ready = 1
@@ -23,6 +23,8 @@ Channel_Plugin = 4
 player_instance = None
 AAC_Enabled = False
 WMA_Enabled = False
+SPEC_WIDTH = 200
+FLOAT_SIZE = 4
 
 
 def crpl_libname(fn):
@@ -106,10 +108,10 @@ class BandData:
         self.Bandwidth = Bandwidth
         self.Gain = Gain
 
+
 class BassPlayer:
     def __init__(self):
         global player_instance
-        #global libraryes
         player_instance = self
         self.ChannelType = Channel_NotOpened
         self.Channel = 0
@@ -128,7 +130,9 @@ class BassPlayer:
         self.currentfilename = ''
         self.volume = 100
         self.zerofft = False
-
+        self.tfftdata = ctypes.c_float * 1024
+        self.spec_size = SPEC_WIDTH * 2 * 4
+        self.tspecdata = ctypes.c_float * SPEC_WIDTH * 2
         self.init()
 
 
@@ -139,7 +143,6 @@ class BassPlayer:
     def init(self):
         self.BassLoaded = BASS_Init(-1, 44100, 0, 0, 0)
         self.exts = avial_exts
-        #print('avial_exts', avial_exts)
 
     def load(self, fn):
         if not self.BassLoaded:
@@ -190,12 +193,13 @@ class BassPlayer:
             #return BASS_SetVolume(v/100)
 
     def play_pause(self):
-        print('playpause')
-        if self.ChannelType == Channel_NotOpened: return
+        if self.ChannelType == Channel_NotOpened:
+            return False
         if self.PlayerMode == PlayMode_Playing:
             self.pause()
         else:
             self.play()
+        return True
 
     def play(self):
         if self.ChannelType == Channel_NotOpened: return
@@ -309,6 +313,15 @@ class BassPlayer:
             else:
                 self.fftbands[i] = 0
 
+    def get_spec_data(self):
+        if self.ChannelType == Channel_NotOpened or BASS_ChannelIsActive(self.Channel) != BASS_ACTIVE_PLAYING:
+            return None
+        data = self.tspecdata()
+        fts = BASS_ChannelGetData(self.Channel, ctypes.pointer(data), self.spec_size)
+        if fts == 0xffffffff:
+            return None
+        return data
+
     def get_fftdata(self, scale=30):
         if self.ChannelType == Channel_NotOpened:
             self.decreasefft()
@@ -317,9 +330,9 @@ class BassPlayer:
             self.decreasefft()
             return False
 
-        tfftdata = ctypes.c_float * 2048
-        fftdata = tfftdata()
-        #BASS_ChannelGetData(chan, fft, BASS_DATA_FFT2048)
+        #tfftdata = ctypes.c_float * 2048
+
+        fftdata = self.tfftdata()
         fts = BASS_ChannelGetData(self.Channel, ctypes.pointer(fftdata), BASS_DATA_FFT2048)
         if fts == 0xffffffff:
             self.lasterror = 'can not get fftdata return ffffffff'
@@ -331,7 +344,7 @@ class BassPlayer:
         b0 = 0
         for i in range(NumFFTBands):
             peak = 0
-            b1 = round(pow(2, i * 10.0 / (NumFFTBands -1)))
+            b1 = round(pow(2, i * 10.0 / (NumFFTBands - 1)))
             if b1 > 1023: b1 = 1023
             if b1 <= b0: b1 = b0 + 1
             for k in range(b0, b1):
@@ -340,7 +353,7 @@ class BassPlayer:
             b0 = b1
 
             bands[i] = round(peak**0.5 * 3 * scale)
-            #Decrease the value of fftBands[i] smoothly for better looking
+            # Decrease the value of fftBands[i] smoothly for better looking
             if bands[i] > self.fftbands[i]:
                   self.fftbands[i] = bands[i]
             else:

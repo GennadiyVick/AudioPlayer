@@ -21,11 +21,9 @@ class CaptionWidget(QtWidgets.QWidget):
             self.l = self.movewindow.pos().x()
             self.t = self.movewindow.pos().y()
             self.mousedown = True
-            #self.onMousePress.emit(event)
 
     def mouseReleaseEvent(self, event):
         self.mousedown = False
-        #self.onMouseRelease.emit(event)
 
     def mouseMoveEvent(self, event):
         if self.mousedown:
@@ -33,15 +31,16 @@ class CaptionWidget(QtWidgets.QWidget):
             y = event.globalY()
             t = y-self.my+self.t
             l = x-self.mx+self.l
-            self.movewindow.move(l, t)
+            self.movewindow.do_move(l, t)
 
     def paintEvent(self, event):
         if len(self.caption) == 0:
             super(MyWidget, self).paintEvent(event)
             return
         painter = QtGui.QPainter(self)
-        painter.setPen(QtGui.QColor(220,220,255))
-        painter.drawText(event.rect().adjusted(1,1,1,1), QtCore.Qt.AlignCenter, self.caption)
+        painter.setPen(QtGui.QColor(220, 220, 255))
+        painter.drawText(event.rect().adjusted(1, 1, 1, 1), QtCore.Qt.AlignCenter, self.caption)
+
 
 class VerSizeWidget(QtWidgets.QWidget):
 
@@ -142,7 +141,9 @@ class MyLabel(QtWidgets.QLabel):
             if 'pressed' in self.styles:
                 style = self.styles['pressed']
         else:
-            if 'default' in self.styles:
+            if self.checked and 'checked' in self.styles:
+                style = self.styles['checked']
+            elif 'default' in self.styles:
                 style = self.styles['default']
         self.setStyleSheet(style)
 

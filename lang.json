@@ -1,0 +1,18 @@
+{
+"select_file": {"default":  "Select a file...", "ru":  "Выбор файла..."},
+"add_playlist": {"default":  "Add new playlist", "ru":  "Добавить плейлист"},
+"enter_playlist_name": {"default":  "Enter new playlist name", "ru":  "Введите новое имя плейлиста"},
+"attention": {"default":  "Attention!!", "ru":  "Внимание!!!"},
+"delete_playlist": {"default":  "Delete current playlist?", "ru":  "Удалить текущий плейлист?"},
+"remove_playlist": {"default":  "Delete playlist", "ru":  "Удалить плейлист"},
+"rename_playlist": {"default":  "Rename playlist", "ru":  "Переименовать плейлист"},
+"add_track_to_playlist": {"default":  "Add track to playlist", "ru":  "Добавить файл в плейлист"},
+"remove_track": {"default":  "Remove track from playlist", "ru":  "Удалить файл из плейлиста"},
+"clear_playlist": {"default":  "Clear playlist", "ru":  "Очистить плейлист"},
+"equalizer": {"default":  "- - Equalizer - -", "ru":  "- - Эквалайзер - -"},
+"play_pause": {"default":  "Play or pause", "ru":  "Воспроизвести/пауза"},
+"show": {"default":  "Show", "ru":  "Показать окно"},
+"prev": {"default":  "Previous", "ru":  "Предидущий"},
+"next": {"default":  "Next", "ru":  "Сдедующий"},
+"quit": {"default":  "Quit", "ru":  "Выход"}
+}
