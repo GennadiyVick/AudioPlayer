@@ -307,11 +307,12 @@ class BassPlayer:
     def decreasefft(self):
         self.zerofft = True
         for i in range(NumFFTBands):
-            if self.fftbands[i] >= 2:
-                self.fftbands[i] -= 2
-                self.zerofft = False
-            else:
-                self.fftbands[i] = 0
+            if self.fftbands[i] > 0:
+                self.fftbands[i] -= 5
+                if self.fftbands[i] < 1:
+                    self.fftbands[i] = 0
+                else:
+                    self.zerofft = False
 
     def get_spec_data(self):
         if self.ChannelType == Channel_NotOpened or BASS_ChannelIsActive(self.Channel) != BASS_ACTIVE_PLAYING:
