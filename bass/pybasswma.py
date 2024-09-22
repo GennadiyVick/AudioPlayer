@@ -20,7 +20,8 @@ Windows Media player, so will already be on most users' systems, but they
 can also be installed separately (WMFDIST.EXE is available from the BASS website).
 '''
 
-import sys, ctypes, platform, pybass
+import os, ctypes, platform
+from . import pybass
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -29,11 +30,12 @@ BASS_FILEPROCS = pybass.BASS_FILEPROCS
 HWMENCODE = ctypes.c_ulong# WMA encoding handle
 
 if platform.system().lower() == 'windows':
-	basswma_module = ctypes.WinDLL('basswma')
-	func_type = ctypes.WINFUNCTYPE
+    fn = os.path.join(os.getcwd(), 'basswma.dll')
+    basswma_module = ctypes.WinDLL(fn)
+    func_type = ctypes.WINFUNCTYPE
 else:
-	basswma_module = ctypes.CDLL('basswma')
-	func_type = ctypes.CFUNCTYPE
+    basswma_module = ctypes.CDLL('basswma')
+    func_type = ctypes.CFUNCTYPE
 
 
 # Additional error codes returned by BASS_ErrorGetCode

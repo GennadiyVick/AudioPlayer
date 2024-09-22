@@ -229,6 +229,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.ui.lNext.onClick.connect(self.next)
         self.ui.lLoop.onClick.connect(self.setLoop)
         self.ui.l_delfile.onClick.connect(self.delFromPlayList)
+        self.ui.l_copytoplaylist.onClick.connect(self.copy_to_playlist)
         self.ui.l_clearplaylist.onClick.connect(self.clearPlayList)
         self.ui.l_addfile.onClick.connect(self.addFilePlayList)
         self.ui.l_addplaylist.onClick.connect(self.addPlayList)
@@ -375,6 +376,29 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.savePlayList()
         pass
 
+    def copy_to_playlist(self):
+        if self.model.rowCount() == 0: return
+        i = self.ui.listView.currentIndex().row()
+        if i < 0: return
+        if self.ui.comboBox.count() < 2:
+            return
+        items = []
+        for i in range(self.ui.comboBox.count()):
+            if len(self.ui.comboBox.itemText(i)) > 0:
+                items.append(self.ui.comboBox.itemText(i))
+        item, result = QtWidgets.QInputDialog.getItem(self, 'Playlists', 'select playlist', items)
+        if result:
+            if self.ui.comboBox.itemText(self.ui.comboBox.currentIndex()) != item:
+                fn = os.path.join(self.path, item + '.plt')
+                if os.path.isfile(fn):
+                    with open(fn) as f:
+                        lines = f.readlines()
+                    tfn = self.model.item(i).fn+'\n'
+                    if tfn not in lines:
+                        lines.append(tfn)
+                        with open(fn, 'w') as f:
+                            f.writelines(lines)
+
     def clearPlayList(self):
         if self.model.rowCount() == 0: return
         self.model.clear()
@@ -483,7 +507,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
                 self.onPlayerPlaylistIndexChanged(i)
 
     def setLoop(self, default=None):
-        if default != None:
+        if default is not None:
             self.loop = default
         else:
             if self.loop == self.LOOP_TOEND:

@@ -49,7 +49,7 @@ class VisWidget(QtWidgets.QWidget):
         if len(self.peakvalues) == 0:
             self.peakvalues = [0] * len(fftbands)
             self.passedcounter = [0] * len(fftbands)
-        if self.updatebusy == 0: self.update()
+        self.update()
 
     def draw_type_0(self, painter):
         pen = QtGui.QPen()

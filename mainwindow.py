@@ -342,6 +342,13 @@ QListView::item:selected:hover {background: rgba(0, 0, 0, 60); color:  aqua;}'''
         self.l_clearplaylist.setText("")
         self.l_clearplaylist.setObjectName("l_clearplaylist")
         self.hl_plalistselect_2.addWidget(self.l_clearplaylist)
+        self.l_copytoplaylist = MyLabel({'default': labelstyle([':/images/copy_playlist.png',
+                                                                ':/images/copy_playlist_h.png'])}, self.centralwidget)
+        self.l_copytoplaylist.setMinimumSize(QtCore.QSize(24, 24))
+        self.l_copytoplaylist.setMaximumSize(QtCore.QSize(24, 24))
+        self.l_copytoplaylist.setText("")
+        self.l_copytoplaylist.setObjectName("l_copytoplaylist")
+        self.hl_plalistselect_2.addWidget(self.l_copytoplaylist)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.hl_plalistselect_2.addItem(spacerItem2)
         self.l_version = QtWidgets.QLabel(self.centralwidget)
