@@ -2,7 +2,7 @@
 ## Based on the BASS library
 https://www.un4seen.com/bass.html
 
-![screenshot](https://gitlab.com/GennadiyVick/audioplayer/blob/master/image.png)
+![screenshot](https://gitlab.com/GennadiyVick/audioplayer/raw/master/image.png)
 ## Required:
 To run the program, you need BASS library (see in libs archive for your OS), python itself and the installed PyQt5 module.
 
