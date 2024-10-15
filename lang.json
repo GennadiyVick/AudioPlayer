@@ -9,6 +9,7 @@
 "add_track_to_playlist": {"default":  "Add track to playlist", "ru":  "Добавить файл в плейлист"},
 "remove_track": {"default":  "Remove track from playlist", "ru":  "Удалить файл из плейлиста"},
 "clear_playlist": {"default":  "Clear playlist", "ru":  "Очистить плейлист"},
+"copy_to_playlist": {"defalult": "Copy selected to a playlist", "ru": "Копировать в плейлист"},
 "equalizer": {"default":  "- - Equalizer - -", "ru":  "- - Эквалайзер - -"},
 "play_pause": {"default":  "Play or pause", "ru":  "Воспроизвести/пауза"},
 "show": {"default":  "Show", "ru":  "Показать окно"},

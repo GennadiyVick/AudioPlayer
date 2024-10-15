@@ -381,4 +381,6 @@ QListView::item:selected:hover {background: rgba(0, 0, 0, 60); color:  aqua;}'''
         self.l_addfile.setToolTip(tr("add_track_to_playlist"))
         self.l_delfile.setToolTip(tr("remove_track"))
         self.l_clearplaylist.setToolTip(tr("clear_playlist"))
+        self.l_copytoplaylist.setToolTip(tr("copy_to_playlist"))
+
 import images_rc
