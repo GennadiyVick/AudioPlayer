@@ -29,13 +29,13 @@ class CaptionWidget(QtWidgets.QWidget):
         if self.mousedown:
             x = event.globalX()
             y = event.globalY()
-            t = y-self.my+self.t
-            l = x-self.mx+self.l
+            t = y - self.my + self.t
+            l = x - self.mx + self.l
             self.movewindow.do_move(l, t)
 
     def paintEvent(self, event):
         if len(self.caption) == 0:
-            super(MyWidget, self).paintEvent(event)
+            super(CaptionWidget, self).paintEvent(event)
             return
         painter = QtGui.QPainter(self)
         painter.setPen(QtGui.QColor(220, 220, 255))
@@ -69,8 +69,9 @@ class VerSizeWidget(QtWidgets.QWidget):
         if self.mousedown:
             x = event.globalX()
             y = event.globalY()
-            h = y-self.my+self.h
+            h = y - self.my + self.h
             self.parent.parent().resize(QtCore.QSize(self.w, h))
+
 
 class MouseWidget(QtWidgets.QLabel):
     onMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
@@ -147,11 +148,12 @@ class MyLabel(QtWidgets.QLabel):
                 style = self.styles['default']
         self.setStyleSheet(style)
 
+
 class MyCheckBox(QtWidgets.QLabel):
     toggled = QtCore.pyqtSignal()
 
-    def __init__(self, parent = None):
-        super(MyCheckBox,self).__init__(parent)
+    def __init__(self, parent=None):
+        super(MyCheckBox, self).__init__(parent)
         self.setMinimumSize(QtCore.QSize(18, 18))
         self.setMaximumSize(QtCore.QSize(18, 18))
         self.setChecked(False)
@@ -173,6 +175,7 @@ class MyCheckBox(QtWidgets.QLabel):
         else:
             self.setStyleSheet('QLabel {background: url(:/images/unchecked.png) no-repeat;}')
 
+
 class MyComboBox(QtWidgets.QComboBox):
     keyPressed = QtCore.pyqtSignal(QtGui.QKeyEvent)
 
@@ -182,8 +185,33 @@ class MyComboBox(QtWidgets.QComboBox):
         else:
             super(MyComboBox, self).keyPressEvent(event)
 
+
 class MyListView(QtWidgets.QListView):
     keyPressed = QtCore.pyqtSignal(QtGui.QKeyEvent)
+
+    def __init__(self, parent):
+        super(MyListView, self).__init__(parent)
+        self.animations = []
+        self.ani_timer = QtCore.QTimer(self)
+        self.ani_timer.setInterval(35)
+        self.ani_timer.timeout.connect(self.onTimer)
+        self.scroll_down = False
+
+    def onTimer(self):
+        if len(self.animations) == 0:
+            self.ani_timer.stop()
+            return
+        ani = self.animations[0]
+        ani['value'] += ani['step']
+        if ani['step'] < 0:
+            if ani['value'] <= ani['end_value']:
+                ani['value'] = ani['end_value']
+                self.animations.pop(0)
+        else:
+            if ani['value'] >= ani['end_value']:
+                ani['value'] = ani['end_value']
+                self.animations.pop(0)
+        self.verticalScrollBar().setValue(ani['value'])
 
     def keyPressEvent(self, event):
         k = event.key()
@@ -191,3 +219,32 @@ class MyListView(QtWidgets.QListView):
             self.keyPressed.emit(event)
         else:
             super(MyListView, self).keyPressEvent(event)
+
+    def wheelEvent(self, e: QtGui.QWheelEvent):
+        v = self.verticalScrollBar().value()
+        if len(self.animations) > 0:
+            v = self.animations[len(self.animations)-1]['end_value']
+        if e.pixelDelta().y() > 0:
+            if v == 0: return
+            if self.scroll_down and len(self.animations) > 0:
+                self.animations.clear()
+                v = self.verticalScrollBar().value()
+            self.scroll_down = False
+            ev = v-40
+            if ev < 0: ev = 0
+            ani = {'value': v, 'step': -6, 'end_value': ev}
+            self.animations.append(ani)
+            if not self.ani_timer.isActive():
+                self.ani_timer.start()
+        else:
+            if not self.scroll_down and len(self.animations) > 0:
+                self.animations.clear()
+                v = self.verticalScrollBar().value()
+            self.scroll_down = True
+            ev = v+40
+            if ev > self.verticalScrollBar().maximum():
+                ev = self.verticalScrollBar().maximum()
+            ani = {'value': v, 'step': 6, 'end_value': ev}
+            self.animations.append(ani)
+            if not self.ani_timer.isActive():
+                self.ani_timer.start()

@@ -17,7 +17,7 @@ from lang import tr
 os.chdir(os.path.dirname(os.path.realpath(__file__)))  # need for bass library loading
 from BASSPlayer import BassPlayer, PlayMode_Playing, PlayMode_Paused
 
-VERSION = '2.3.6'
+VERSION = '2.3.7'
 
 
 # for one application instance only

@@ -114,7 +114,6 @@ class VisWidget(QtWidgets.QWidget):
         bw = bandwidth - 1
         block_height = 6
         bh = block_height - 1
-
         for i in range(bcount):
             brush = QtGui.QBrush(QtGui.QColor(*self.bandcolors[i]))
             painter.setBrush(brush)
@@ -122,11 +121,17 @@ class VisWidget(QtWidgets.QWidget):
             if v > h: v = h
             if v > 0:
                 x = round(i * bandwidth)
-                bc = round(v / block_height)
+                bc = v // block_height
+                lc = v / block_height - bc
+                if lc > 0: bc += 1
                 for j in range(bc):
                     y = h - j * block_height
                     r = QtCore.QRect(x + 5, y, bw, bh)
+                    if j == bc-1 and lc > 0:
+                        brush = QtGui.QBrush(QtGui.QColor(*self.bandcolors[i], int(lc*255)))
+                        painter.setBrush(brush)
                     painter.drawRect(r)
+                    #painter.fillRect(rect, QBrush(QColor(128, 128, 255, 128)));
     def paintEvent(self, event):
         if self.updatebusy > 0:
             return
