@@ -26,7 +26,6 @@ class Lang:
 
 
 lang = Lang()
-print('init lang')
 
 def tr(s):
     return lang.tr(s)

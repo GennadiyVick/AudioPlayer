@@ -796,8 +796,10 @@ def main():
     if not app.lock():
         if len(sys.argv) > 1:
             send('\n'.join(sys.argv[1:]))
+        else:
+            QtWidgets.QMessageBox.warning(None, tr('attention'), tr('one_instance'))
         return -42
-    app.setWindowIcon(QtGui.QIcon(":/images/logo.png"))
+    app.setWindowIcon(QtGui.QIcon(":/images/icon.png"))
     main_window = AudioPlayer(app)
     app.mainwindow = main_window
     main_window.show()

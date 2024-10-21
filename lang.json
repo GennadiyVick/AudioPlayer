@@ -15,5 +15,6 @@
 "show": {"default":  "Show", "ru":  "Показать окно"},
 "prev": {"default":  "Previous", "ru":  "Предидущий"},
 "next": {"default":  "Next", "ru":  "Сдедующий"},
-"quit": {"default":  "Quit", "ru":  "Выход"}
+"quit": {"default":  "Quit", "ru":  "Выход"},
+"one_instance": {"default": "An instance of the 'Audioplayer' app is already running, only one instance of the program can be launched.", "ru": "Экземпяр программы 'Audioplayer' уже запущен, можно запустить только один экземпляр программы."}
 }
