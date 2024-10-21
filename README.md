@@ -1,12 +1,21 @@
-# Audio player
+# Audio player 🎧
 ## Based on the BASS library
 https://www.un4seen.com/bass.html
 
 ![screenshot](https://gitlab.com/GennadiyVick/audioplayer/raw/master/image.png)
+## 📦 Some features:
+- Dragging a file/s into the window - replaces everything in the selected playlist
+- Dragging a file/s into the window while holding down CTRL - adds to the end of the selected playlist
+- Opening an audio file with this audio player, all files in the file directory are added to the empty playlist.
+- Left-clicking on the visualization changes its type
+### ⌨️ Keyboard controls:
+- Space - pause/play
+- Up, down keys - navigate through the playlist
+- Enter - play the selected item in the playlist
 ## Required:
 To run the program, you need BASS library (see in libs archive for your OS), python itself and the installed PyQt5 module.
 
-### MS Windows:
+### 🪟 MS Windows:
 You can download the distribution from [python.org](https://www.python.org/downloads/) and double-click the installation
 after installation, you need to install the `PyQt5` module, to do this in the console enter 
 ```console
@@ -25,7 +34,7 @@ To run from a shortcut, use `pythonw` instead of `python`
 pythonw program_path\AudioPlayer.py
 ```
 
-### Linux:
+### 🐧 Linux:
 For the program to work in Linux, you need to use python version 3 or higher.
 Most distributions have python preinstalled and you don't need to download and install it, 
 you just need to install the `PyQt5` module.
