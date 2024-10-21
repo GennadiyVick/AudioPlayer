@@ -5,7 +5,7 @@ https://www.un4seen.com/bass.html
 ![screenshot](https://gitlab.com/GennadiyVick/audioplayer/raw/master/image.png)
 ## 📦 Some features:
 - Dragging a file/s into the window - replaces everything in the selected playlist
-- Dragging a file/s into the window while holding down CTRL - adds to the end of the selected playlist
+- Dragging a file into the window while holding down CTRL - adds to the end of the selected playlist
 - Opening an audio file with this audio player, all files in the file directory are added to the empty playlist.
 - Left-clicking on the visualization changes its type
 ### ⌨️ Keyboard controls:
