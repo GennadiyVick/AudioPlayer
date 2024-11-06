@@ -1,10 +1,11 @@
 from PyQt5 import QtGui, QtCore,QtWidgets
 import math
 
+
 class MVolume(QtWidgets.QWidget):
     posChanged = QtCore.pyqtSignal(int)
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(MVolume,self).__init__(parent)
         self.pi = 3.1415926535
         self.piGr = self.pi / 180
@@ -22,17 +23,16 @@ class MVolume(QtWidgets.QWidget):
         self.fitBgImage = False
         self.borderBgOffset = 0
         self.oldAngle = 0.0
-        self.color_gr_first = QtGui.QColor(0, 255, 255)
-        self.color_gr_second = QtGui.QColor(250, 0, 220)
+        self.color_gradient = [QtGui.QColor(0, 255, 255), QtGui.QColor(0, 0, 255)]
 
     #public...
 
     def getLineWidth(self):
-        return self.lineWidth
+        return self.linewidth
 
     def setLineWidth(self, value):
-        self.lineWidth = value
-        if updatebusy == 0: self.update()
+        self.linewidth = value
+        if self.updatebusy == 0: self.update()
 
     def setMaxAngle(self, value):
         self.maxangle = value
@@ -64,8 +64,7 @@ class MVolume(QtWidgets.QWidget):
         if self.updatebusy == 0: self.update()
         if self.updatebusy < 0: self.updatebusy = 0
 
-    #slots
-
+    # slots
     def setMax(self, value):
         self.maxpos = value;
         if self.position > self.maxpos:
@@ -82,8 +81,8 @@ class MVolume(QtWidgets.QWidget):
         self.position = value
         self.posToAngle()
         if self.updatebusy == 0: self.update()
-    #private...
 
+    # private...
     def getAngle(self, la, na):
         a = na - la;
         if la > na: a = la - na
@@ -119,7 +118,7 @@ class MVolume(QtWidgets.QWidget):
         painter = QtGui.QPainter(self)
         w = self.width()
         h = self.height()
-        if self.bg != None:
+        if self.bg is not None:
             x = (w - self.bg.width()) // 2
             y = (h - self.bg.height()) // 2
             painter.drawPixmap(QtCore.QRect(x,y,self.bg.width(),self.bg.height()), self.bg)
@@ -127,29 +126,30 @@ class MVolume(QtWidgets.QWidget):
         x = 1; y = 1;
         w = w-2
         h = h-2
-        drawingRect = QtCore.QRect(x,y,w,h)
+        drawing_rect = QtCore.QRect(x,y,w,h)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
         painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
         gradient = QtGui.QConicalGradient()
-        gradient.setCenter(drawingRect.center())
+        gradient.setCenter(drawing_rect.center())
         gradient.setAngle(self.gradientangle)
-        gradient.setColorAt(0, self.color_gr_second)
-        gradient.setColorAt(1, self.color_gr_first)
-    
+        l = len(self.color_gradient)-1
+        for i, color in enumerate(self.color_gradient):
+            gradient.setColorAt(i/l, color)
+
         pen = QtGui.QPen(QtGui.QBrush(gradient), self.linewidth)
         pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
-        painter.drawArc(drawingRect, int(self.startangle * 16), int(-self.currentAngle * 16))
-        if (self.knob != None):
+        painter.drawArc(drawing_rect, int(self.startangle * 16), int(-self.currentAngle * 16))
+        if self.knob is not None:
             x = (w - self.knob.width()) // 2
             y = (h - self.knob.height()) // 2
             ox = self.width() // 2
             oy = self.height() // 2
-            painter.translate(ox,oy)
+            painter.translate(ox, oy)
             painter.rotate(self.currentAngle-135)
-            painter.translate(-ox,-oy)
-            painter.drawPixmap(QtCore.QRect(x,y,self.knob.width(),self.knob.height()), self.knob)
+            painter.translate(-ox, -oy)
+            painter.drawPixmap(QtCore.QRect(x, y, self.knob.width(), self.knob.height()), self.knob)
     
     def resizeEvent(self, event):
         self.update()
@@ -183,7 +183,7 @@ class MVolume(QtWidgets.QWidget):
         p = self.AngleToPos()
         if p != self.position:
             self.position = p
-            posChanged.emit(position)
+            self.posChanged.emit(self.position)
         self.busy = False
 
     def wheelEvent(self, event):
@@ -191,6 +191,5 @@ class MVolume(QtWidgets.QWidget):
             self.setPos(self.position+5)
         else:
             self.setPos(self.position-5)
-
         self.posChanged.emit(self.position)
 

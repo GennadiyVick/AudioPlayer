@@ -16,5 +16,6 @@
 "prev": {"default":  "Previous", "ru":  "Предидущий"},
 "next": {"default":  "Next", "ru":  "Сдедующий"},
 "quit": {"default":  "Quit", "ru":  "Выход"},
-"one_instance": {"default": "An instance of the 'Audioplayer' app is already running, only one instance of the program can be launched.", "ru": "Экземпяр программы 'Audioplayer' уже запущен, можно запустить только один экземпляр программы."}
+"one_instance": {"default": "An instance of the 'Audioplayer' app is already running, only one instance of the program can be launched.", "ru": "Экземпяр программы 'Audioplayer' уже запущен, можно запустить только один экземпляр программы."},
+"format_not_supported": {"default": "The file extension {ext} is not supported in this version.", "ru": "Расширение файла {ext} в данной версии неподдерживается."}
 }

@@ -34,9 +34,6 @@ class Ui_eq_window(object):
 
         self.dialoglayout.addWidget(self.eq_window)
 
-        self.eq_window.setStyleSheet("QWidget#eq_window {border-style: inset;border-width: 1px; border-color: #242424; border-radius: 10px; background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #222222, stop:0.5 #282a2b, stop:1 #222);}\n"
-"QLabel {color: #ccc;}\n"
-"")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.eq_window)
         self.verticalLayout.setContentsMargins(6, 2, 6, 6)
         self.verticalLayout.setSpacing(0)
@@ -78,7 +75,9 @@ class Ui_eq_window(object):
         self.hl_top.addWidget(self.l_caption)
         #spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         #self.hl_top.addItem(spacerItem1)
-        self.l_close = MyLabel({'default': 'QLabel {background: url(":/images/close.png") no-repeat center center } QLabel:hover {background:  url(":/images/close_h.png") no-repeat center center}'},self.w_close)
+        self.l_close = MyLabel({'default': 'QLabel {background: url(":/images/close.png") no-repeat center center } '
+                                           'QLabel:hover {background:  url(":/images/close_h.png") no-repeat center '
+                                           'center}'}, self.w_close)
         self.l_close.setMinimumSize(QtCore.QSize(18, 18))
         self.l_close.setMaximumSize(QtCore.QSize(18, 18))
         self.l_close.setText("")
@@ -87,13 +86,6 @@ class Ui_eq_window(object):
         self.verticalLayout.addWidget(self.w_close)
         self.w_bars = QtWidgets.QWidget(self.eq_window)
         self.w_bars.setMinimumSize(QtCore.QSize(0, 120))
-        self.w_bars.setStyleSheet("QWidget#w_bars {\n"
-"background: rgba(0, 0, 0, 60);\n"
-"border-style: inset;\n"
-"border-width: 1px;\n"
-"border-color: #445;\n"
-"border-radius: 10px;\n"
-"}")
         self.w_bars.setObjectName("w_bars")
         self.verticalLayout.addWidget(self.w_bars)
 

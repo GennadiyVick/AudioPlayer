@@ -1,11 +1,12 @@
 from bass.pybass import *
+#from bass import pytags
 import ctypes
 from signal import Signal
 import platform
 import os
 
 
-avial_exts = '.mp3.wav'
+avial_exts = ''
 NumFFTBands = 44
 NumEQBands = 10
 EQBandWidth = [3, 4, 4, 4, 5, 6, 5, 4, 3, 3]
@@ -21,8 +22,6 @@ Channel_WMA = 2
 Channel_Music = 3
 Channel_Plugin = 4
 player_instance = None
-AAC_Enabled = False
-WMA_Enabled = False
 SPEC_WIDTH = 200
 FLOAT_SIZE = 4
 
@@ -37,21 +36,46 @@ def crpl_libname(fn):
 class Library():
     def __init__(self, exts):
         self.exts = exts
+        self.enabled = False
 
     def load(self, fn, ext):
         return None
 
+
 class BassLibrary(Library):
     def __init__(self):
-        super(BassLibrary, self).__init__('.mp3.wav')
+        super(BassLibrary, self).__init__('.mp3.wav.ogg')
+        self.enabled = True
 
     def load(self, fn, ext):
         return BASS_StreamCreateFile(False, fn, 0, 0, 0)
 
 
+class AC3Library(Library):
+    def __init__(self):
+        super(AC3Library, self).__init__('.ac3')
+        if os.path.isfile(crpl_libname('bass_ac3')):
+            try:
+                from bass import pybass_ac3
+            except Exception as e:
+                print('bass_ac3 library not exists', str(e))
+            else:
+                self.enabled = True
+
+    def load(self, fn, ext):
+        return pybass_ac3.BASS_AC3_StreamCreateFile(False, fn, 0, 0, 0)
+
+
 class ACCLibrary(Library):
     def __init__(self):
         super(ACCLibrary, self).__init__('.aac.m4a.m4p')
+        if os.path.isfile(crpl_libname('bass_aac')):
+            try:
+                from bass import pybass_aac
+            except:
+                print('bass_aac library not exists')
+            else:
+                self.enabled = True
 
     def load(self, fn, ext):
         if ext == '.aac':
@@ -59,13 +83,20 @@ class ACCLibrary(Library):
         else:
             return pybass_aac.BASS_MP4_StreamCreateFile(False, fn, 0, 0, 0)
 
+
 class WMALibrary(Library):
     def __init__(self):
         super(WMALibrary, self).__init__('.wma')
+        if os.path.isfile(crpl_libname('basswma')):
+            try:
+                from bass import pybasswma
+            except:
+                print('basswma library not exists')
+            else:
+                self.enabled = True
 
     def load(self, fn, ext):
         return pybasswma.BASS_WMA_StreamCreateFile(False, fn, 0, 0, 0)
-
 
 
 class Libraries(list):
@@ -73,28 +104,19 @@ class Libraries(list):
         super(Libraries, self).__init__()
         self.append(BassLibrary())
         global avial_exts
-        if os.path.isfile(crpl_libname('bass_aac')):
-            try:
-                from bass import pybass_aac
-            except:
-                print('bass_aac library not exists')
-            else:
-                self.append(ACCLibrary())
-                avial_exts += '.aac.m4a.m4p'
-
+        self.append(ACCLibrary())
+        self.append(AC3Library())
         if platform.system().lower() == 'windows':
-            if os.path.isfile('basswma.dll'):
-                try:
-                    from bass import pybasswma
-                except:
-                    print('basswma library not exists')
-                else:
-                    self.append(WMALibrary())
-                    avial_exts += '.wma'
+            self.append(WMALibrary())
+
+        for lib in self:
+            if lib.enabled:
+                avial_exts += lib.exts
+
 
     def load(self, fn, ext):
         for lib in self:
-            if ext in lib.exts:
+            if lib.enabled and ext in lib.exts:
                 return lib.load(fn, ext)
         return 0
 
@@ -161,12 +183,12 @@ class BassPlayer:
             self.status_changed.emit()
             print(self.lasterror)
             return False
-
         binfn = fn.encode()
         self.Channel = libraries.load(binfn, ext)
         if self.Channel == 0:
             self.lasterror = 'File not loaded!'
             self.status_changed.emit()
+            print(self.lasterror)
             return False
 
         self.PlayerMode = PlayMode_Ready
@@ -180,7 +202,6 @@ class BassPlayer:
 
     def get_volume(self):
         return self.volume
-
 
     def set_volume(self, v):
         if v > 100:
@@ -372,3 +393,8 @@ class BassPlayer:
         if player_instance != None:
             player_instance.stream_finished.emit()
         #BASS_ChannelSetSync(self.Channel, BASS_SYNC_END, 0, onEndPlay, 0)
+
+    def get_meta(self):
+        # if self.ChannelType == Channel_NotOpened:
+        #    return None
+        pass

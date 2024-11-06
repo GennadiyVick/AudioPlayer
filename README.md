@@ -5,7 +5,7 @@ https://www.un4seen.com/bass.html
 ![screenshot](https://gitlab.com/GennadiyVick/audioplayer/raw/master/image.png)
 ## 📦 Some features:
 - Dragging a file/s into the window - replaces everything in the selected playlist
-- Dragging a file into the window while holding down CTRL - adds to the end of the selected playlist
+- Dragging a file/s into the window while holding down CTRL - adds to the end of the selected playlist
 - Opening an audio file with this audio player, all files in the file directory are added to the empty playlist.
 - Left-clicking on the visualization changes its type
 ### ⌨️ Keyboard controls:
@@ -14,12 +14,14 @@ https://www.un4seen.com/bass.html
 - Enter - play the selected item in the playlist
 ## Required:
 To run the program, you need BASS library (see in libs archive for your OS), python itself and the installed PyQt5 module.
+Starting with version 2.4.0 the `mutagen` module is required for operation.
 
 ### 🪟 MS Windows:
 You can download the distribution from [python.org](https://www.python.org/downloads/) and double-click the installation
-after installation, you need to install the `PyQt5` module, to do this in the console enter 
+after installation, you need to install the `PyQt5` and `mutagen` modules, to do this in the console enter 
 ```console
 python -m pip install pyqt5
+python -m pip install mutagen
 ```
 the program will download and install the module.
 Then copy bass.dll to AudioPlayer.py directory from libs.zip/windows/x64, if you need support m4a and acc, wma formats see such libraryes in libs.zip/windows/aac and wma
@@ -43,9 +45,10 @@ for example, in distributions based on Debian, it is installed like this:
 ```console
 sudo apt-get install python3
 ```
-To install the module in the console, enter
+To install the modules in the console, enter
 ```console
 sudo apt-get install python3-pyqt5
+pip3 install mutagen
 ```
 module will be automatically downloaded and installed.
 Then copy libbass.so to AudioPlayer.py directory from libs.zip/linux/bass/x86_64, if you need support m4a and acc format see library in libs.zip/linux/aac/x86_64/ and copy it also

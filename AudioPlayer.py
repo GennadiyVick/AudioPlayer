@@ -4,6 +4,7 @@ Audio player using lib bass and pyqt5
 Author Roganov G.V. roganovg@mail.ru
 """
 
+
 import sys
 import os
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -13,11 +14,13 @@ from mslider import MSlider
 from equalizer import Equalizer
 from server import DGramServer, send
 from lang import tr
+from musinfo import  MP3Data
+
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))  # need for bass library loading
 from BASSPlayer import BassPlayer, PlayMode_Playing, PlayMode_Paused
 
-VERSION = '2.3.7'
+VERSION = '2.4.1'
 
 
 # for one application instance only
@@ -34,11 +37,6 @@ class Application(QtWidgets.QApplication):
             return True
         return False
 
-    def __del__(self):
-        if self._singular is not None:
-            if self._singular.isAttached():
-                self._singular.detach()
-
 
 def secondsToTime(s):
     m = s // 60
@@ -53,8 +51,9 @@ class AudioPlayer(QtWidgets.QMainWindow):
     LOOP_TOEND = 1
     LOOP_REPEAT = 2
 
-    def __init__(self, parent=None):
+    def __init__(self, app=None):
         super(AudioPlayer, self).__init__(None)
+        self.app = app
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.tray = None
@@ -101,32 +100,30 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.read_attr_buffer = []
         self.read_attr_ontime = False
 
+        self.screen_rect = QtWidgets.QApplication.desktop().screen().rect()
         self.eqdialog = None
+        # Таймеры
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.onTimer)
         self.timer.start()
-
         self.vistimer = QtCore.QTimer(self)
         self.vistimer.setInterval(33)
         self.vistimer.timeout.connect(self.onVisTimer)
         self.vistimer.start()
+        # Запускаем прослушиваюий сервер для передачи параметров с других экземляров
         self.runserver()
-        self.screen_rect = QtWidgets.QApplication.desktop().screen().rect()
 
     # Необходим для приёма данных от вторичных запущенных экземпляров приложений
     # Когда ассоциируем аудио файлы с этим приложением.
     def runserver(self):
         thread = QtCore.QThread()
         self.serv = DGramServer(thread)
-        self.serv.onFinish.connect(self.serverThreadFinish)
+        #self.serv.onFinish.connect(self.serverThreadFinish)
         self.serv.onRead.connect(self.doRead)
         self.serv.moveToThread(thread)
         thread.started.connect(self.serv.run)
         thread.start()
-
-    def serverThreadFinish(self, msg):
-        print('server thread finished')
 
     def read_timer(self):
         self.read_attr_ontime = False
@@ -195,7 +192,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
                 fn = self.model.item(index).fn
                 if self.player.load(fn):
                     self.player.play()
-                    self.ui.l_info.setText(os.path.basename(self.player.currentfilename))
+                    self.update_play_info()
                     self.onPlayerPlaylistIndexChanged(index)
                 if index > 0:
                     self.ui.listView.scrollTo(self.model.index(index, 0))
@@ -259,7 +256,8 @@ class AudioPlayer(QtWidgets.QMainWindow):
         elif self.player.PlayerMode == PlayMode_Paused:
             pass
         else:
-            self.ui.l_time.setText('0.00/0.00')
+            self.ui.l_time.setText('00.00')
+            self.ui.r_time.setText('00.00')
             self.slider.posChange(0)
 
     # private slots...
@@ -268,14 +266,16 @@ class AudioPlayer(QtWidgets.QMainWindow):
     def onPlayerStateChanged(self):
         state = self.player.PlayerMode
         if state < 3:
-            self.ui.state_icon.setPixmap(QtGui.QPixmap(':/images/stop_state.png'))
+            #self.ui.state_icon.setPixmap(QtGui.QPixmap(':/images/stop_state.png'))
             self.slider.posChange(0)
-            self.ui.l_time.setText('0.00/0.00')
+            self.ui.l_time.setText('00.00')
+            self.ui.r_time.setText('00.00')
         elif state == 3:
-            self.ui.state_icon.setPixmap(QtGui.QPixmap(':/images/play_state.png'))
+            # self.ui.state_icon.setPixmap(QtGui.QPixmap(':/images/play_state.png'))
+            pass
         elif state == 4:
-            self.ui.state_icon.setPixmap(QtGui.QPixmap(':/images/pause_state.png'))
-
+            # self.ui.state_icon.setPixmap(QtGui.QPixmap(':/images/pause_state.png'))
+            pass
         if state == 3:
             self.ui.lPlay.styles = {'default': labelstyle([':/images/pause.png', ':/images/pause_over.png']),
                                     'pressed': labelstyle([':/images/pause_down.png'])}
@@ -283,6 +283,36 @@ class AudioPlayer(QtWidgets.QMainWindow):
             self.ui.lPlay.styles = {'default': labelstyle([':/images/play.png', ':/images/play_over.png']),
                                     'pressed': labelstyle([':/images/play_down.png'])}
         self.ui.lPlay.updatestyle()
+
+    def update_play_info(self):
+        fn = self.player.currentfilename
+        i = fn.rfind('.')
+        if i > 0:
+            ext = fn[i:].lower()
+            if ext == '.mp3':
+                mp3info = MP3Data(fn, with_cover=True)
+                if len(mp3info.artist) > 0 and len(mp3info.title) > 0:
+                    self.ui.l_info.setText(mp3info.artist+' - '+mp3info.title)
+                elif len(mp3info.title) > 0:
+                    self.ui.l_info.setText(mp3info.title)
+                else:
+                    self.ui.l_info.setText(os.path.basename(fn))
+                if mp3info.image is not None:
+                    try:
+                        pixmap = QtGui.QPixmap()
+                        pixmap.loadFromData(mp3info.image)
+                        self.ui.l_image.setPixmap(pixmap)
+                    except Exception as e:
+                        print(str(e))
+                        self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
+                else:
+                    self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
+            else:
+                self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
+                self.ui.l_info.setText(os.path.basename(fn))
+        else:
+            self.ui.l_info.setText(os.path.basename(fn))
+            self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
 
     def play(self):
         if not self.player.play_pause():
@@ -294,8 +324,9 @@ class AudioPlayer(QtWidgets.QMainWindow):
                 fn = self.model.item(i).fn
                 if self.player.load(fn):
                     self.player.play()
-                    self.ui.l_info.setText(os.path.basename(self.player.currentfilename))
+                    self.update_play_info()
                     self.onPlayerPlaylistIndexChanged(i)
+
     def next(self):
         if self.model.rowCount() < 2: return
         if len(self.ui.listView.selectedIndexes()) > 0:
@@ -308,7 +339,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         fn = self.model.item(i).fn
         if self.player.load(fn):
             self.player.play()
-            self.ui.l_info.setText(os.path.basename(self.player.currentfilename))
+            self.update_play_info()
             self.onPlayerPlaylistIndexChanged(i)
 
     def prev(self):
@@ -323,7 +354,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         fn = self.model.item(i).fn
         if self.player.load(fn):
             self.player.play()
-            self.ui.l_info.setText(os.path.basename(self.player.currentfilename))
+            self.update_play_info()
             self.onPlayerPlaylistIndexChanged(i)
 
     def onPlayerStreamFinish(self):
@@ -358,14 +389,16 @@ class AudioPlayer(QtWidgets.QMainWindow):
             self.timeChange(pos, s_max)
 
     def timeChange(self, s_pos, s_max):
-        self.ui.l_time.setText(secondsToTime(s_pos) + ' / ' + secondsToTime(s_max))
+        #self.ui.l_time.setText(secondsToTime(s_pos) + ' / ' + secondsToTime(s_max))
+        self.ui.l_time.setText(secondsToTime(s_pos))
+        self.ui.r_time.setText(secondsToTime(s_max))
 
     def listviewdoubleClicked(self, index):
         if index.row() < 0: return
         fn = self.model.item(index.row()).fn
         if self.player.load(fn):
             self.player.play()
-            self.ui.l_info.setText(os.path.basename(self.player.currentfilename))
+            self.update_play_info()
             self.onPlayerPlaylistIndexChanged(index.row())
 
     def delFromPlayList(self):
@@ -469,7 +502,6 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.ui.lEq.checked = False
         self.ui.lEq.updatestyle()
 
-
     def eqClick(self):
         if self.eqdialog is None:
             self.eqdialog = Equalizer(self.player)
@@ -503,7 +535,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
             fn = self.model.item(i).fn
             if self.player.load(fn):
                 self.player.play()
-                self.ui.l_info.setText(os.path.basename(self.player.currentfilename))
+                self.update_play_info()
                 self.onPlayerPlaylistIndexChanged(i)
 
     def setLoop(self, default=None):
@@ -553,7 +585,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
             fn = self.model.item(0).fn
             if self.player.load(fn):
                 self.player.play()
-                self.ui.l_info.setText(os.path.basename(self.player.currentfilename))
+                self.update_play_info()
                 self.onPlayerPlaylistIndexChanged(0)
 
         event.acceptProposedAction()
@@ -589,6 +621,14 @@ class AudioPlayer(QtWidgets.QMainWindow):
             if os.path.isfile(fn):
                 fdir = os.path.dirname(fn)
                 fname = fn
+                i = fname.rfind('.')
+                if i > 0:
+                    ext = fname[i:]
+                    if ext not in self.player.exts:
+                        QtWidgets.QMessageBox.information(None, tr('attention'), tr('format_not_supported').format(ext=ext))
+                        continue
+                else:
+                    continue
             elif not os.path.isdir(fn):
                 continue
             files = os.listdir(fdir)
@@ -609,7 +649,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
             fn = self.model.item(index).fn
             if self.player.load(fn):
                 self.player.play()
-                self.ui.l_info.setText(os.path.basename(self.player.currentfilename))
+                self.update_play_info()
                 self.onPlayerPlaylistIndexChanged(index)
             if index > 0:
                 self.ui.listView.scrollTo(self.model.index(index, 0))
@@ -716,13 +756,17 @@ class AudioPlayer(QtWidgets.QMainWindow):
             self.ui.lLoop.styles = {'default': labelstyle([':/images/loop_on.png', ':/images/loop_on_over.png'])}
             self.ui.lLoop.setStyleSheet(self.ui.lLoop.styles['default'])
 
-        pl = sets.value("AUDIO/playlist", "")
-        if len(pl) > 0 and self.model.rowCount() == 0:
-            for i in range(1, self.ui.comboBox.count()):
-                if pl == self.ui.comboBox.itemText(i):
-                    self.ui.comboBox.setCurrentIndex(i)
-                    self.loadPlayList()
-                    break
+        if self.model.rowCount() == 0:
+            pl = sets.value("AUDIO/playlist", "")
+            if len(pl) > 0:
+                for i in range(1, self.ui.comboBox.count()):
+                    if pl == self.ui.comboBox.itemText(i):
+                        self.ui.comboBox.setCurrentIndex(i)
+                        self.loadPlayList()
+                        break
+            else:
+                self.ui.comboBox.setCurrentIndex(0)
+                self.loadPlayList()
 
     def onVisTimer(self):
         self.player.get_fftdata()
@@ -792,7 +836,6 @@ def main():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = Application(sys.argv)
-    app.setStyleSheet('QToolTip{border-style: none; margin: 2px; background: #444; color: #ddf}')
     if not app.lock():
         if len(sys.argv) > 1:
             send('\n'.join(sys.argv[1:]))
@@ -800,10 +843,20 @@ def main():
             QtWidgets.QMessageBox.warning(None, tr('attention'), tr('one_instance'))
         return -42
     app.setWindowIcon(QtGui.QIcon(":/images/icon.png"))
+    if not os.path.isfile('style.qrs'):
+        print('file of style.qrs is not found')
+        return 1
+    with open('style.qrs') as f:
+        style = f.read()
+        app.setStyleSheet(style)
     main_window = AudioPlayer(app)
     app.mainwindow = main_window
     main_window.show()
-    sys.exit(app.exec_())
+    r = app.exec_()
+    if app._singular is not None:
+       if app._singular.isAttached():
+            app._singular.detach()
+    sys.exit(r)
 
 
 if __name__ == '__main__':

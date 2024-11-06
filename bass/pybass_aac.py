@@ -19,7 +19,6 @@ HSTREAM = pybass.HSTREAM
 DOWNLOADPROC = pybass.DOWNLOADPROC
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
 
-
 if platform.system().lower() == 'windows':
     fn = os.path.join(os.getcwd(), 'bass_aac.dll')
     bass_aac_module = ctypes.WinDLL(fn)

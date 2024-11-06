@@ -40,15 +40,26 @@ class VisWidget(QtWidgets.QWidget):
             self.bandcolors.append(cl)
 
     def updatefft(self, fftbands, zerofft):
-        if self.zerofft and zerofft:
-            return
-        self.zerofft = zerofft
         self.fftbands = fftbands
         if len(self.bandcolors) == 0:
             self.update_colors()
         if len(self.peakvalues) == 0:
             self.peakvalues = [0] * len(fftbands)
             self.passedcounter = [0] * len(fftbands)
+        if zerofft and self.zerofft == zerofft:
+            return
+        if zerofft:
+            if self.draw_type == 0:
+                if all(v < 1 for v in self.peakvalues):
+                    self.zerofft = zerofft
+                    self.update()
+                    return
+            else:
+                self.zerofft = zerofft
+                self.update()
+                return
+        else:
+            self.zerofft = zerofft
         self.update()
 
     def draw_type_0(self, painter):
@@ -142,13 +153,13 @@ class VisWidget(QtWidgets.QWidget):
         painter.setPen(pen)
 
         # bg draw
-        grad = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(self.width(), 0))
-        grad.setColorAt(0, QtGui.QColor(12, 12, 14))
-        grad.setColorAt(0.5, QtGui.QColor(18, 18, 33))
-        grad.setColorAt(1, QtGui.QColor(12, 12, 14))
-        brush = QtGui.QBrush(grad)
-        painter.setBrush(brush)
-        painter.drawRoundedRect(0, 0, self.width(), self.height(), 8, 8)
+        #grad = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(self.width(), 0))
+        #grad.setColorAt(0, QtGui.QColor(12, 12, 14))
+        #grad.setColorAt(0.5, QtGui.QColor(18, 18, 33))
+        #grad.setColorAt(1, QtGui.QColor(12, 12, 14))
+        #brush = QtGui.QBrush(grad)
+        #painter.setBrush(brush)
+        #painter.drawRoundedRect(0, 0, self.width(), self.height(), 8, 8)
 
         if self.draw_type == 0:
             self.draw_type_0(painter)

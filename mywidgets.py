@@ -223,14 +223,14 @@ class MyListView(QtWidgets.QListView):
     def wheelEvent(self, e: QtGui.QWheelEvent):
         v = self.verticalScrollBar().value()
         if len(self.animations) > 0:
-            v = self.animations[len(self.animations)-1]['end_value']
+            v = self.animations[len(self.animations) - 1]['end_value']
         if e.pixelDelta().y() > 0:
             if v == 0: return
             if self.scroll_down and len(self.animations) > 0:
                 self.animations.clear()
                 v = self.verticalScrollBar().value()
             self.scroll_down = False
-            ev = v-40
+            ev = v - 40
             if ev < 0: ev = 0
             ani = {'value': v, 'step': -6, 'end_value': ev}
             self.animations.append(ani)
@@ -241,10 +241,28 @@ class MyListView(QtWidgets.QListView):
                 self.animations.clear()
                 v = self.verticalScrollBar().value()
             self.scroll_down = True
-            ev = v+40
+            ev = v + 40
             if ev > self.verticalScrollBar().maximum():
                 ev = self.verticalScrollBar().maximum()
             ani = {'value': v, 'step': 6, 'end_value': ev}
             self.animations.append(ani)
             if not self.ani_timer.isActive():
                 self.ani_timer.start()
+
+
+class ImageLabel(QtWidgets.QLabel):
+    def __init__(self, parent):
+        super(ImageLabel, self).__init__(parent)
+        self.pix = None
+        self.setScaledContents(False)
+
+    def setPixmap(self, pix):
+        self.pix = pix
+        super().setPixmap(self.scaledPixmap())
+
+    def scaledPixmap(self):
+        return self.pix.scaled(self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+
+    def resizeEvent(self, event):
+        if self.pix is not None:
+            super().setPixmap(self.scaledPixmap())

@@ -1,0 +1,78 @@
+QLabel {color: #ccc;}
+
+QScrollBar {background: transparent; border-style: inset;border-radius: 5px;border-width: 0px;}
+QScrollBar:vertical {width: 10px;}
+QScrollBar::handle {margin: -1px; background: #444; border-style: inset;border-radius: 5px; border: 1px solid #1c1c1c;}
+QScrollBar::handle:vertical {min-height: 10px;}
+QScrollBar::handle:horizontal {min-width: 10px;}
+QScrollBar::handle:hover {background: #555;}
+QScrollBar::left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow,
+QScrollBar::down-arrow, QScrollBar::sub-line, QScrollBar::add-line,
+QScrollBar::add-page, QScrollBar::sub-page {background: transparent; height: 0; width: 0;}
+
+#centralwidget {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #12121f, stop:0.5 #383d4b, stop:1 #12121f);
+    border-style: inset; border-width: 1px; border-color: #191919; border-radius: 10px;
+}
+
+#w_info {
+    background: rgba(0, 0, 0, 60);
+    border-style: inset;
+    border-width: 1px;
+    border-color: #404050b0;
+    border-radius: 10px;
+}
+
+#w_track {
+	background: rgba(0, 0, 0, 60);
+	border-style: inset;
+	border-width: 1px;
+	border-color: #404050b0;
+	border-radius: 7px
+}
+
+#wButtonContainer {
+    background: #b0131321;
+    border-style: inset;
+    border-width: 1px;
+    border-color: #60404050;
+    border-radius: 10px;
+}
+QComboBox {
+	background: rgba(0, 0, 0, 60);
+	border-radius: 2px;
+	border-style: inset;
+	border-width: 1px;
+	border-color: #60404050;
+}
+QListView { 
+	background: rgba(0, 0, 0, 60);
+	border-style: inset;
+	border-width: 1px;
+	border-color: #60404050;
+	color: #999;
+	border-radius: 10px;
+}
+QListView::item:selected { background: #9400606b; color: #fff; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
+QListView::item:hover { background: rgba(30, 50, 80, 60); color: #ccc; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
+QListView::item:selected:hover {background: #84002040; color:  aqua; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
+
+QWidget#w_bars {
+    background: rgba(0, 0, 0, 60);
+    border-style: inset;
+    border-width: 1px;
+    border-color: #445;
+    border-radius: 10px;
+}
+
+QToolTip{
+    border-style: none;
+    margin: 2px;
+    background: #444;
+    color: #ddf;
+}
+
+#eq_window {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #12121f, stop:0.5 #383d4b, stop:1 #12121f);
+    border-style: inset; border-width: 1px; border-color: #191919; border-radius: 10px;
+}
