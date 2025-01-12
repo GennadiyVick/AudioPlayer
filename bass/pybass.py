@@ -65,7 +65,7 @@ if platform.system().lower() == 'windows':
 	func_type = ctypes.WINFUNCTYPE
 else:
 	# correct by Wasylews (sabov.97@mail.ru), thank him
-	bass_module = ctypes.CDLL('./libbass.so', mode=ctypes.RTLD_GLOBAL)
+	bass_module = ctypes.CDLL(os.path.join(os.getcwd(),'libbass.so'), mode=ctypes.RTLD_GLOBAL)
 	func_type = ctypes.CFUNCTYPE
 
 QWORD = ctypes.c_int64

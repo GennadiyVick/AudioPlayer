@@ -266,3 +266,35 @@ class ImageLabel(QtWidgets.QLabel):
     def resizeEvent(self, event):
         if self.pix is not None:
             super().setPixmap(self.scaledPixmap())
+
+
+class ImageWidget(QtWidgets.QWidget):
+    def __init__(self, parent, size=None):
+        super(ImageWidget,self).__init__(parent)
+        self.setBackgroundRole(QtGui.QPalette.Base)
+        self.pix: QtGui.QPixmap = None
+        self.wsize = size
+        self.roundconners = 10
+
+    def setPixmap(self, pixmap):
+        if not pixmap:
+            return
+        self.pix = pixmap.scaled(self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        #self.repaint()
+        self.update()
+
+    def get_pixmap(self):
+        return self.pix
+
+    def paintEvent(self, event):
+        if self.pix is None: return
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        brush = QtGui.QBrush(self.pix)
+        painter.setBrush(brush)
+        pen = QtGui.QPen()
+        pen.setWidth(0)
+        pen.setStyle(QtCore.Qt.NoPen)
+        painter.setPen(pen)
+        painter.drawRoundedRect(QtCore.QRect(0, 0, self.pix.width(), self.pix.height()), self.roundconners, self.roundconners)
+        painter.end()

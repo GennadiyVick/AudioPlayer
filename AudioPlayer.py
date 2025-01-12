@@ -4,9 +4,10 @@ Audio player using lib bass and pyqt5
 Author Roganov G.V. roganovg@mail.ru
 """
 
-
 import sys
 import os
+os.chdir(os.path.dirname(os.path.realpath(__file__)))  # need for bass library loading
+
 from PyQt5 import QtGui, QtCore, QtWidgets
 from mainwindow import Ui_MainWindow, labelstyle
 from mvolume import MVolume
@@ -15,12 +16,9 @@ from equalizer import Equalizer
 from server import DGramServer, send
 from lang import tr
 from musinfo import  MP3Data
-
-
-os.chdir(os.path.dirname(os.path.realpath(__file__)))  # need for bass library loading
 from BASSPlayer import BassPlayer, PlayMode_Playing, PlayMode_Paused
 
-VERSION = '2.4.1'
+VERSION = '2.4.2'
 
 
 # for one application instance only
@@ -119,7 +117,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
     def runserver(self):
         thread = QtCore.QThread()
         self.serv = DGramServer(thread)
-        #self.serv.onFinish.connect(self.serverThreadFinish)
+        # self.serv.onFinish.connect(self.serverThreadFinish)
         self.serv.onRead.connect(self.doRead)
         self.serv.moveToThread(thread)
         thread.started.connect(self.serv.run)
@@ -771,6 +769,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
     def onVisTimer(self):
         self.player.get_fftdata()
         self.ui.viswidget.updatefft(self.player.fftbands, self.player.zerofft)
+        #self.ui.visual_graphics.update_data(self.player.fftbands, self.player.zerofft)
 
     def doShow(self):
         self.tray.hide()

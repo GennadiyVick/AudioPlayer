@@ -4,7 +4,9 @@ import ctypes
 from signal import Signal
 import platform
 import os
-
+"""
+Author Roganov G.V. roganovg@mail.ru
+"""
 
 avial_exts = ''
 NumFFTBands = 44
@@ -24,8 +26,10 @@ Channel_Plugin = 4
 player_instance = None
 SPEC_WIDTH = 200
 FLOAT_SIZE = 4
+CALC_FFT = 10.0 / (NumFFTBands - 1)
 
 
+# lib name to file name regardless of OS type
 def crpl_libname(fn):
     if platform.system().lower() == 'windows':
         return f'{fn}.dll'
@@ -61,9 +65,13 @@ class AC3Library(Library):
                 print('bass_ac3 library not exists', str(e))
             else:
                 self.enabled = True
+                self.ac3 = pybass_ac3
 
     def load(self, fn, ext):
-        return pybass_ac3.BASS_AC3_StreamCreateFile(False, fn, 0, 0, 0)
+        if self.enabled:
+            return self.ac3.BASS_AC3_StreamCreateFile(False, fn, 0, 0, 0)
+        else:
+            return None
 
 
 class ACCLibrary(Library):
@@ -76,12 +84,17 @@ class ACCLibrary(Library):
                 print('bass_aac library not exists')
             else:
                 self.enabled = True
+                self.aac = pybass_aac
+        else:
+            print('bass_aac lib not found')
 
     def load(self, fn, ext):
+        if not self.enabled:
+            return None
         if ext == '.aac':
-            return pybass_aac.BASS_AAC_StreamCreateFile(False, fn, 0, 0, 0)
+            return self.aac.BASS_AAC_StreamCreateFile(False, fn, 0, 0, 0)
         else:
-            return pybass_aac.BASS_MP4_StreamCreateFile(False, fn, 0, 0, 0)
+            return self.aac.BASS_MP4_StreamCreateFile(False, fn, 0, 0, 0)
 
 
 class WMALibrary(Library):
@@ -103,8 +116,11 @@ class Libraries(list):
     def __init__(self):
         super(Libraries, self).__init__()
         self.append(BassLibrary())
+        print('Libraries init')
         global avial_exts
-        self.append(ACCLibrary())
+        acclib = ACCLibrary()
+        if acclib.enabled:
+            self.append(acclib)
         self.append(AC3Library())
         if platform.system().lower() == 'windows':
             self.append(WMALibrary())
@@ -112,7 +128,6 @@ class Libraries(list):
         for lib in self:
             if lib.enabled:
                 avial_exts += lib.exts
-
 
     def load(self, fn, ext):
         for lib in self:
@@ -237,7 +252,6 @@ class BassPlayer:
                 BASS_ChannelSetPosition(self.Channel, 0, BASS_POS_BYTE)
             self.status_changed.emit()
 
-
     def Restart(self):
         pass
 
@@ -254,7 +268,6 @@ class BassPlayer:
         self.ChannelType = Channel_NotOpened
         self.PlayerMode = PlayMode_Standby
 
-
     def set_position(self, pos): #sec
         if self.ChannelType == Channel_NotOpened: return
         SongPos = BASS_ChannelSeconds2Bytes(self.Channel, pos)
@@ -266,8 +279,7 @@ class BassPlayer:
         result = BASS_ChannelGetPosition(self.Channel, BASS_POS_BYTE)
         if result < 0: result = 0
         if result == 0: return 0
-        FloatPos = BASS_ChannelBytes2Seconds(self.Channel, result);
-        return int(FloatPos)
+        return int(BASS_ChannelBytes2Seconds(self.Channel, result))
 
     #def getTimePos(self):
     #    if self.ChannelType == Channel_NotOpened: return '0.00'
@@ -279,8 +291,7 @@ class BassPlayer:
         result = BASS_ChannelGetLength(self.Channel, BASS_POS_BYTE)
         if result < 0: result = 0
         if result == 0: return 0
-        FloatLen = BASS_ChannelBytes2Seconds(self.Channel, result);
-        return int(FloatLen)
+        return int(BASS_ChannelBytes2Seconds(self.Channel, result))
 
     #def getTimeDuration(self):
     #    if self.ChannelType == Channel_NotOpened: return '0.00'
@@ -307,7 +318,6 @@ class BassPlayer:
                 if self.EQHandle[i] != 0:
                     BASS_ChannelRemoveFX(self.Channel, self.EQHandle[i])
                     self.EQHandle[i] = 0
-
 
     def set_eqgain(self, index, gain):
         if gain < -15:
@@ -364,9 +374,11 @@ class BassPlayer:
 
         bands = [0] * NumFFTBands
         b0 = 0
+        scale_3 = 3 * scale
         for i in range(NumFFTBands):
             peak = 0
-            b1 = round(pow(2, i * 10.0 / (NumFFTBands - 1)))
+            #b1 = round(pow(2, i * 10.0 / (NumFFTBands - 1)))
+            b1 = round(2 ** (i * CALC_FFT))
             if b1 > 1023: b1 = 1023
             if b1 <= b0: b1 = b0 + 1
             for k in range(b0, b1):
@@ -374,7 +386,7 @@ class BassPlayer:
                     peak = fftdata[k]
             b0 = b1
 
-            bands[i] = round(peak**0.5 * 3 * scale)
+            bands[i] = round(peak**0.5 * scale_3)
             # Decrease the value of fftBands[i] smoothly for better looking
             if bands[i] > self.fftbands[i]:
                   self.fftbands[i] = bands[i]

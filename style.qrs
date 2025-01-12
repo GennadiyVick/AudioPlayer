@@ -31,6 +31,13 @@ QScrollBar::add-page, QScrollBar::sub-page {background: transparent; height: 0; 
 	border-radius: 7px
 }
 
+/*
+#visual_graphics {
+    background: transparent;
+    border: 0px;
+}
+*/
+
 #wButtonContainer {
     background: #b0131321;
     border-style: inset;
@@ -69,7 +76,7 @@ QToolTip{
     border-style: none;
     margin: 2px;
     background: #444;
-    color: #ddf;
+    color: #def;
 }
 
 #eq_window {

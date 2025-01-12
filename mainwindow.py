@@ -1,6 +1,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from mywidgets import MyLabel, MyComboBox, MyListView, CaptionWidget, VerSizeWidget, ImageLabel
+from mywidgets import MyLabel, MyComboBox, MyListView, CaptionWidget, VerSizeWidget, ImageWidget
 from viswidget import VisWidget
 from lang import tr
 
@@ -90,19 +90,27 @@ class Ui_MainWindow(object):
         self.w_info_vlo.setSpacing(0)
         self.w_info_vlo.setObjectName("w_info_vlo")
         # image
-        self.l_image = ImageLabel(self.w_info)
+        self.l_image_hlo = QtWidgets.QHBoxLayout()
+        self.l_image_hlo.setContentsMargins(0, 0, 0, 0)
+        self.l_image_hlo.setSpacing(0)
+        self.l_image_hlo.setObjectName("l_image_hlo")
+        self.l_image = ImageWidget(self.w_info)
         self.l_image.setEnabled(True)
-        self.l_image.setAlignment(QtCore.Qt.AlignCenter)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        #self.l_image.setAlignment(QtCore.Qt.AlignCenter)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.l_image.sizePolicy().hasHeightForWidth())
         self.l_image.setSizePolicy(sizePolicy)
-        self.l_image.setText("")
-        self.l_image.setPixmap(QtGui.QPixmap(":/images/logo.png"))
+        #self.l_image.setText("")
         self.l_image.setObjectName("l_image")
-        self.l_image.setMinimumSize(QtCore.QSize(0, 130))
-        self.w_info_vlo.addWidget(self.l_image)
+        self.l_image.setMinimumSize(QtCore.QSize(130, 130))
+        self.l_image.setMaximumSize(QtCore.QSize(130, 130))
+        self.l_image_hlo.addWidget(self.l_image)
+        #self.w_info_vlo.addWidget(self.l_image)
+        self.w_info_vlo.addLayout(self.l_image_hlo)
+        self.l_image.setPixmap(QtGui.QPixmap(":/images/logo.png"))
+
         # l_info music file title
         self.l_info = QtWidgets.QLabel(self.w_info)
         self.l_info.setMinimumSize(QtCore.QSize(0, 18))
