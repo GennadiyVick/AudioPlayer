@@ -1,14 +1,5 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'eqwindow.ui'
-#
-# Created by: PyQt5 UI code generator 5.13.2
-#
-# WARNING! All changes made in this file will be lost!
-
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from mywidgets import CaptionWidget, MyLabel, MyCheckBox
+from mywidgets import CaptionWidget, MyCheckBox
 from lang import tr
 
 class Ui_eq_window(object):
@@ -49,19 +40,17 @@ class Ui_eq_window(object):
         self.w_close.setObjectName("w_close")
         self.hl_top = QtWidgets.QHBoxLayout(self.w_close)
         self.hl_top.setContentsMargins(0, 1, 0, 1)
-        self.hl_top.setSpacing(0)
+        self.hl_top.setSpacing(4)
         self.hl_top.setObjectName("hl_top")
         self.cbEnable = MyCheckBox(self.w_close)
-        #self.cbEnable.setStyleSheet('QCheckBox {background: transparent; border-width: 0px;} QCheckBox::indicator {width: 18px; height: 18px;}'
-        #'QCheckBox::indicator:unchecked {image: url(:/images/unchecked.png);} QCheckBox::indicator:checked {image: url(:/images/checked.png);}')
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.cbEnable.sizePolicy().hasHeightForWidth())
         self.cbEnable.setSizePolicy(sizePolicy)
         self.cbEnable.setObjectName("cbEnable")
+        self.cbEnable.setToolTip(tr("tool_tip_enable_eq"))
         self.hl_top.addWidget(self.cbEnable)
-
         self.l_caption = CaptionWidget(dialog_window, self.w_close)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -73,16 +62,31 @@ class Ui_eq_window(object):
         #self.l_caption.setAlignment(QtCore.Qt.AlignCenter)
         self.l_caption.setObjectName("l_caption")
         self.hl_top.addWidget(self.l_caption)
+
+        #self.bSettings = MyLabel({'default': 'QLabel {background: url(":/images/set.png") no-repeat center center } '
+        #                                     'QLabel:hover {background:  url(":/images/set_h.png") no-repeat center '
+        #                                     'center}'}, self.w_close)
+        #self.bSettings.setObjectName("bSettings")
+        #self.bSettings.setMinimumSize(QtCore.QSize(18, 18))
+        #self.bSettings.setMaximumSize(QtCore.QSize(18, 18))
+        #self.bSettings.setText("")
+        #self.bSettings.setToolTip(tr("tool_tip_settings_eq"))
+        #self.hl_top.addWidget(self.bSettings)
+        self.bMenu = QtWidgets.QPushButton(self.w_close)
+        self.bMenu.setFlat(True)
+        self.bMenu.setObjectName('bMenu')
+        self.bMenu.setMinimumSize(QtCore.QSize(18, 18))
+        self.bMenu.setMaximumSize(QtCore.QSize(18, 18))
+        self.hl_top.addWidget(self.bMenu)
         #spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         #self.hl_top.addItem(spacerItem1)
-        self.l_close = MyLabel({'default': 'QLabel {background: url(":/images/close.png") no-repeat center center } '
-                                           'QLabel:hover {background:  url(":/images/close_h.png") no-repeat center '
-                                           'center}'}, self.w_close)
-        self.l_close.setMinimumSize(QtCore.QSize(18, 18))
-        self.l_close.setMaximumSize(QtCore.QSize(18, 18))
-        self.l_close.setText("")
-        self.l_close.setObjectName("l_close")
-        self.hl_top.addWidget(self.l_close)
+        self.bClose = QtWidgets.QPushButton(self.w_close)
+        self.bClose.setFlat(True)
+        self.bClose.setMinimumSize(QtCore.QSize(18, 18))
+        self.bClose.setMaximumSize(QtCore.QSize(18, 18))
+        self.bClose.setText("")
+        self.bClose.setObjectName("bClose")
+        self.hl_top.addWidget(self.bClose)
         self.verticalLayout.addWidget(self.w_close)
         self.w_bars = QtWidgets.QWidget(self.eq_window)
         self.w_bars.setMinimumSize(QtCore.QSize(0, 120))

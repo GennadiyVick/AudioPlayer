@@ -17,5 +17,11 @@
 "next": {"default":  "Next", "ru":  "Сдедующий"},
 "quit": {"default":  "Quit", "ru":  "Выход"},
 "one_instance": {"default": "An instance of the 'Audioplayer' app is already running, only one instance of the program can be launched.", "ru": "Экземпяр программы 'Audioplayer' уже запущен, можно запустить только один экземпляр программы."},
-"format_not_supported": {"default": "The file extension {ext} is not supported in this version.", "ru": "Расширение файла {ext} в данной версии неподдерживается."}
+"format_not_supported": {"default": "The file extension {ext} is not supported in this version.", "ru": "Расширение файла {ext} в данной версии неподдерживается."},
+"eq_settings_title": {"default": "--EQ Settings--", "ru": "--EQ Настройки--"},
+"center_frequency": {"default": "Center\nfrequency", "ru": "Средняя\nчастота"},
+"band_width": {"default": "Band\nwidth", "ru": "Ширина\nполосы"},
+"tool_tip_enable_eq": {"default": "Enable/disable equalizer", "ru": "Включить/выключить эквалайзер"},
+"tool_tip_settings_eq": {"default": "Equalizer settings", "ru": "Настройка эквалайзера"},
+"tool_tip_reset_eq": {"default": "Reset equalizer", "ru": "Сброс эквалайзера"}
 }

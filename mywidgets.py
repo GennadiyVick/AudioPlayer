@@ -126,7 +126,7 @@ class MyLabel(QtWidgets.QLabel):
             self.leftbtn = False
 
             x, y = event.pos().x(), event.pos().y()
-            if x > 0 and y > 0 and x < self.width() and y < self.height():
+            if 0 < x < self.width() and 0 < y < self.height():
                 self.onClick.emit()
                 if self.checkable:
                     self.checked = not self.checked

@@ -1,0 +1,258 @@
+QLabel {color: #ccc;}
+
+QScrollBar {background: transparent; border-style: inset;border-radius: 5px;border-width: 0px;}
+QScrollBar:vertical {width: 10px;}
+QScrollBar::handle {margin: -1px; background: #444; border-style: inset;border-radius: 5px; border: 1px solid #1c1c1c;}
+QScrollBar::handle:vertical {min-height: 10px;}
+QScrollBar::handle:horizontal {min-width: 10px;}
+QScrollBar::handle:hover {background: #58a;}
+QScrollBar::left-arrow, QScrollBar::right-arrow, QScrollBar::up-arrow,
+QScrollBar::down-arrow, QScrollBar::sub-line, QScrollBar::add-line,
+QScrollBar::add-page, QScrollBar::sub-page {background: transparent; height: 0; width: 0;}
+
+#centralwidget {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #12121f, stop:0.5 #383d4b, stop:1 #12121f);
+    border-style: inset; border-width: 1px; border-color: #191919; border-radius: 10px;
+}
+
+QMenu {
+    background:rgba(42, 43, 52, 1.000);
+    padding:8px 0;
+    color: #eee;
+}
+QMenu::separator {
+    margin:4px 0;
+    height:1px;
+    background:rgba(63, 64, 66, 1.000)
+}
+QMenu::item {
+    padding:4px 19px
+}
+QMenu::item:selected {
+    background:rgba(255, 255, 255, 0.133)
+}
+QMenu::icon {
+    padding-left:10px;
+    width:14px;
+    height:14px
+}
+
+#w_info {
+    background: rgba(0, 0, 0, 60);
+    border-style: inset;
+    border-width: 1px;
+    border-color: #404050b0;
+    border-radius: 10px;
+}
+
+#w_track {
+	background: rgba(0, 0, 0, 60);
+	border-style: inset;
+	border-width: 1px;
+	border-color: #404050b0;
+	border-radius: 7px
+}
+
+/*
+#visual_graphics {
+    background: transparent;
+    border: 0px;
+}
+*/
+
+#wButtonContainer {
+    background: #b0131321;
+    border-style: inset;
+    border-width: 1px;
+    border-color: #60404050;
+    border-radius: 10px;
+}
+QLineEdit {
+    padding:3px 4px;
+    border:1px solid rgba(63, 84, 140, 1.000);
+    background:rgba(0, 0, 0, 0.0);
+    border-radius:6px;
+    color: #eee;
+}
+QLineEdit:focus {
+    border-color:rgba(138, 180, 247, 1.000);
+}
+
+QPushButton {
+    color:rgba(138, 180, 247, 1.000);
+    border:1px solid rgba(63, 64, 66, 1.000);
+    padding:4px 8px;
+    border-radius:4px
+}
+QPushButton:flat,QPushButton:default {
+    border:none;
+    padding:5px 9px
+}
+QPushButton:default {
+    color:rgba(32, 33, 36, 1.000);
+    background:rgba(138, 180, 247, 1.000)
+}
+QPushButton:hover {background:rgba(102, 159, 245, 0.110)}
+QPushButton:pressed {background:rgba(87, 150, 244, 0.230)}
+QPushButton:checked:enabled {background:rgba(87, 150, 244, 0.230)}
+QPushButton:default:hover {background:rgba(117, 168, 246, 1.000)}
+QPushButton:default:pressed,QPushButton:default:checked {background:rgba(95, 154, 244, 1.000)}
+QPushButton:default:disabled,QPushButton:default:checked:disabled {background:rgba(228, 231, 235, 0.200)}
+QDialogButtonBox {dialogbuttonbox-buttons-have-icons:0}
+QDialogButtonBox QPushButton {min-width:65px}
+
+
+QComboBox {
+    min-height:1.5em;
+    padding:0 8px 0 4px;
+    background:rgba(63, 64, 66, 0.0);
+    border:1px solid rgba(63, 86, 110, 0.7);
+    border-radius:6px;
+    color: #eeeeee;
+}
+QComboBox:focus,QComboBox:open {
+    border-color:rgba(138, 180, 247, 1.000)
+}
+QComboBox::drop-down {
+    margin:2px 2px 2px -6px;
+    border-radius:4
+}
+QComboBox::drop-down:editable:hover {
+    background:rgba(255, 255, 255, 0.145)
+}
+
+QComboBox::down-arrow {
+    image:url(:/images/expand_less_e1e5e9_180.svg)
+}
+QComboBox::down-arrow:disabled {
+    image:url(:/images/expand_less_e4e7eb66_180.svg)
+}
+QComboBox::down-arrow:editable:open {
+    image:url(:/images/expand_less_e1e5e9_0.svg)
+}
+QComboBox::down-arrow:editable:open:disabled {
+    image:url(:/images/expand_less_e4e7eb66_0.svg)
+}
+
+QComboBox::item:selected {
+    border:none;background:rgba(66, 136, 242, 0.400);
+    border-radius:4px
+}
+QComboBox QListView[frameShape="0"] {
+    margin:0;
+    padding:4px;
+    background:rgba(42, 43, 47, 1.000);
+    selection-background-color:rgba(66, 136, 242, 0.400);
+    border-radius:0;
+}
+QComboBox QListView::item {border-radius:4px}
+
+
+QListView, QListWidget, QTableView, QTableWidget {
+	background: rgba(0, 0, 0, 60);
+	border-style: inset;
+	border-width: 1px;
+	border-color: #60404050;
+	color: #bbb;
+	border-radius: 10px;
+}
+QListView::item:selected { background: #9400606b; color: #fff; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
+QListView::item:hover { background: rgba(30, 50, 80, 60); color: #ccc; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
+QListView::item:selected:hover {background: #84002040; color:  aqua; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
+
+QWidget#w_bars {
+    background: rgba(0, 0, 0, 60);
+    border-style: inset;
+    border-width: 1px;
+    border-color: #445;
+    border-radius: 10px;
+}
+
+QToolTip{
+    border-style: none;
+    margin: 2px;
+    background: #444;
+    color: #def;
+}
+
+#eq_window {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #12121f, stop:0.5 #383d4b, stop:1 #12121f);
+    border-style: inset; border-width: 1px; border-color: #191919; border-radius: 10px;
+}
+
+#eq_settings_widget {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #12121f, stop:0.5 #383d4b, stop:1 #12121f);
+    border-style: inset; border-width: 1px; border-color: #191919; border-radius: 12px;
+    color: #eee;
+}
+
+QDialog {
+    background: qlineargradient( x1:0 y1:0, x2:0 y2:1, stop:0 #12121f, stop:0.5 #182d44, stop:1 #12121f);
+    border-style: inset; border-width: 1px; border-color: #191919; border-radius: 6px;
+    color: #eee;
+}
+
+#bMin {background:  url(":/images/minimize.png") no-repeat center center; border: none;}
+#bMin:hover {background:  url(":/images/minimize_h.png") no-repeat center center;}
+
+#bClose {background:  url(":/images/close.png") no-repeat center center; border: none;}
+#bClose:hover {background:  url(":/images/close_h.png") no-repeat center center;}
+
+#bPrev {background:  url(":/images/prev.png") no-repeat center center; border: none;}
+#bPrev:hover {background:  url(":/images/prev_over.png") no-repeat center center;}
+#bPrev:pressed {background:  url(":/images/prev_down.png") no-repeat center center;}
+
+#bPlay {background:  url(":/images/play.png") no-repeat center center; border: none;}
+#bPlay:hover {background:  url(":/images/play_over.png") no-repeat center center;}
+#bPlay:pressed {background:  url(":/images/play_down.png") no-repeat center center;}
+
+#bPause {background:  url(":/images/pause.png") no-repeat center center; border: none;}
+#bPause:hover {background:  url(":/images/pause_over.png") no-repeat center center;}
+#bPause:pressed {background:  url(":/images/pause_down.png") no-repeat center center;}
+
+#bStop {background:  url(":/images/stop.png") no-repeat center center; border: none;}
+#bStop:hover {background:  url(":/images/stop_over.png") no-repeat center center;}
+#bStop:pressed {background:  url(":/images/stop_down.png") no-repeat center center;}
+
+#bNext {background:  url(":/images/next.png") no-repeat center center; border: none;}
+#bNext:hover {background:  url(":/images/next_over.png") no-repeat center center;}
+#bNext:pressed {background:  url(":/images/next_down.png") no-repeat center center;}
+
+#bLoop {background:  url(":/images/loop_off.png") no-repeat center center; border: none;}
+#bLoop:hover {background:  url(":/images/loop_off_over.png") no-repeat center center;}
+
+#bLoopDown {background:  url(":/images/loop_down.png") no-repeat center center; border: none;}
+#bLoopDown:hover {background:  url(":/images/loop_down_over.png") no-repeat center center;}
+
+#bLoopOn {background:  url(":/images/loop_on.png") no-repeat center center; border: none;}
+#bLoopOn:hover {background:  url(":/images/loop_on_over.png") no-repeat center center;}
+
+#bEq {background:  url(":/images/eq.png") no-repeat center center; border: none;}
+#bEq:hover {background:  url(":/images/eq_h.png") no-repeat center center;}
+
+#bEqChecked {background:  url(":/images/eq_en.png") no-repeat center center; border: none;}
+#bEqChecked:hover {background:  url(":/images/eq_en_h.png") no-repeat center center;}
+
+#b_addplaylist {background:  url(":/images/add.png") no-repeat center center; border: none;}
+#b_addplaylist:hover {background:  url(":/images/add_h.png") no-repeat center center;}
+
+#b_editplaylist {background:  url(":/images/edit.png") no-repeat center center; border: none;}
+#b_editplaylist:hover {background:  url(":/images/edit_h.png") no-repeat center center;}
+
+#b_delplaylist {background:  url(":/images/del.png") no-repeat center center; border: none;}
+#b_delplaylist:hover {background:  url(":/images/del_h.png") no-repeat center center;}
+
+#b_addfile {background:  url(":/images/add.png") no-repeat center center; border: none;}
+#b_addfile:hover {background:  url(":/images/add_h.png") no-repeat center center;}
+
+#b_delfile {background:  url(":/images/del.png") no-repeat center center; border: none;}
+#b_delfile:hover {background:  url(":/images/del_h.png") no-repeat center center;}
+
+#b_clearplaylist {background:  url(":/images/clear.png") no-repeat center center; border: none;}
+#b_clearplaylist:hover {background:  url(":/images/clear_h.png") no-repeat center center;}
+
+#b_copytoplaylist {background:  url(":/images/copy_playlist.png") no-repeat center center; border: none;}
+#b_copytoplaylist:hover {background:  url(":/images/copy_playlist_h.png") no-repeat center center;}
+
+#bMenu {background:  url(":/images/menu.png") no-repeat center center; border: none;}
+#bMenu:hover {background:  url(":/images/menu_h.png") no-repeat center center;}

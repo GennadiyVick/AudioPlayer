@@ -222,6 +222,7 @@ BASS_DEVICE_FREQ = 0x4000# set device sample rate
 BASS_OBJECT_DS = 1# IDirectSound
 BASS_OBJECT_DS3DL = 2# IDirectSound3DListener
 
+
 # Device info structure
 class BASS_DEVICEINFO(ctypes.Structure):
 	_fields_ = [('name', ctypes.c_char_p),#description

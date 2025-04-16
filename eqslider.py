@@ -77,10 +77,7 @@ class EqSlider(QtWidgets.QWidget):
                 self.pos = p
                 self.posChange.emit(self, self.pos)
 
-
-
-    #public slots...
-
+    # public slots...
     def setPos(self, pos):
         self.pos = pos
         h = self.wh - 18

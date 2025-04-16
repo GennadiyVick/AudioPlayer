@@ -31,9 +31,6 @@ class Drawer:
 class DrawerGradient(Drawer):
     def __init__(self, widget):
         super(DrawerGradient, self).__init__(widget)
-        self.pen0 = QtGui.QPen()
-        self.pen0.setWidth(0)
-        self.pen0.setStyle(QtCore.Qt.NoPen)
         self.bandcolors = []
         color_spectr = get_color_spectr()
         for i in range(NumFFTBands):
@@ -46,7 +43,7 @@ class DrawerGradient(Drawer):
         w = self.widget.width() - 10
         h = self.widget.height() - 10
         self.widget.updatebusy += 1
-        painter.setPen(self.pen0)
+        painter.setPen(QtCore.Qt.PenStyle.NoPen)
         # draw bands
         bandwidth = round(w / bcount)
         bw = bandwidth - 1
@@ -77,13 +74,11 @@ class DrawerGradient(Drawer):
 class DrawerWinamp(Drawer):
     def __init__(self, widget):
         super(DrawerWinamp, self).__init__(widget)
-        self.pen0 = QtGui.QPen()
-        self.pen0.setWidth(0)
         self.gradient = None
         self.g_h = 0
         self.brush_grad = None
-        self.pen1 = QtGui.QPen(QtGui.QColor(132, 255, 255))
-        self.pen1.setWidth(1)
+        self.pen = QtGui.QPen(QtGui.QColor(132, 255, 255))
+        self.pen.setWidth(1)
         self.peakvalues = [0] * NumFFTBands
         self.passedcounter = [0] * NumFFTBands
 
@@ -102,7 +97,7 @@ class DrawerWinamp(Drawer):
             self.gradient.setColorAt(0.5, QtGui.QColor(255, 255, 0))
             self.gradient.setColorAt(1, QtGui.QColor(0, 255, 0))
             self.brush_grad = QtGui.QBrush(self.gradient)
-
+        painter.setPen(QtCore.Qt.PenStyle.NoPen)
         painter.setBrush(self.brush_grad)
         bw = round(bandwidth - 1)
         try:
@@ -114,7 +109,7 @@ class DrawerWinamp(Drawer):
                     x = round(i * bandwidth)
                     y = bandheight - v
                     r = QtCore.QRect(x + 5, y + 5, bw, h - y)
-                    painter.setPen(self.pen0)
+                    painter.setPen(QtCore.Qt.PenStyle.NoPen)
                     painter.drawRect(r)
 
                 if v >= int(self.peakvalues[i]):
@@ -122,7 +117,7 @@ class DrawerWinamp(Drawer):
                     self.passedcounter[i] = 0
                 else:
                     if int(self.peakvalues[i]) > 0:
-                        painter.setPen(self.pen1)
+                        painter.setPen(self.pen)
                         y = round(bandheight - self.peakvalues[i])
                         x = round(i * bandwidth)
                         painter.drawLine(x + 5, y + 5, x + 4 + bw, y + 5)

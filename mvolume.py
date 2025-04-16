@@ -6,7 +6,7 @@ class MVolume(QtWidgets.QWidget):
     posChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
-        super(MVolume,self).__init__(parent)
+        super(MVolume, self).__init__(parent)
         self.pi = 3.1415926535
         self.piGr = self.pi / 180
         self.knob = None
@@ -84,7 +84,7 @@ class MVolume(QtWidgets.QWidget):
 
     # private...
     def getAngle(self, la, na):
-        a = na - la;
+        a = na - la
         if la > na: a = la - na
         if 360 - a < a:
             if la > na:
@@ -92,8 +92,8 @@ class MVolume(QtWidgets.QWidget):
             else:
                 a = a - 360
         elif la > na:
-            a = -a;
-        return a;
+            a = -a
+        return a
 
     def angleFromXY(self, x, y):
         px = x - self.width() // 2
@@ -121,12 +121,12 @@ class MVolume(QtWidgets.QWidget):
         if self.bg is not None:
             x = (w - self.bg.width()) // 2
             y = (h - self.bg.height()) // 2
-            painter.drawPixmap(QtCore.QRect(x,y,self.bg.width(),self.bg.height()), self.bg)
+            painter.drawPixmap(QtCore.QRect(x, y, self.bg.width(), self.bg.height()), self.bg)
 
-        x = 1; y = 1;
-        w = w-2
-        h = h-2
-        drawing_rect = QtCore.QRect(x,y,w,h)
+        x, y = 1, 1
+        w -= 2
+        h -= 2
+        drawing_rect = QtCore.QRect(x, y, w, h)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
         painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
