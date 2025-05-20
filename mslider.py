@@ -80,9 +80,9 @@ class MSlider(QtWidgets.QWidget):
         ww = self.width()
         wh = self.height()
         p = round(ww*(self.pos/self.maxpos))
-        fgSL = QtCore.QSize(self.images[0].width(),self.images[0].height())
-        fgSC = QtCore.QSize(self.images[1].width(),self.images[1].height())
-        fgSR = QtCore.QSize(self.images[2].width(),self.images[2].height())
+        fgSL = QtCore.QSize(self.images[0].width(), self.images[0].height())
+        fgSC = QtCore.QSize(self.images[1].width(), self.images[1].height())
+        fgSR = QtCore.QSize(self.images[2].width(), self.images[2].height())
         if self.fitHeight:
             fgSL.setWidth(self.images[0].width())
             fgSL.setHeight(wh)
@@ -111,7 +111,7 @@ class MSlider(QtWidgets.QWidget):
             cw = p-fgSL.width()
 
         if cw > 0:
-            painter.drawPixmap(QtCore.QRect(x,y,cw,fgSC.height()),self.images[1],QtCore.QRect(0,0,fgSC.width(),self.images[1].height()))
+            painter.drawPixmap(QtCore.QRect(x,y,cw,fgSC.height()),self.images[1], QtCore.QRect(0,0,fgSC.width(), self.images[1].height()))
         x = ww-fgSR.width()
         if not self.fitHeight:
             y = (wh - fgSR.height()) // 2
@@ -122,7 +122,7 @@ class MSlider(QtWidgets.QWidget):
             painter.drawPixmap(QtCore.QRect(x,y,fgSR.width(),fgSR.height()),self.images[2])
         else:
             cw = fgSR.width() - (ww-p)
-            painter.drawPixmap(QtCore.QRect(x,y,cw,fgSR.height()),self.images[2],QtCore.QRect(0,0,cw,self.images[2].height()))
+            painter.drawPixmap(QtCore.QRect(x,y,cw,fgSR.height()), self.images[2],QtCore.QRect(0,0,cw,self.images[2].height()))
         painter.end()
 
     def resizeEvent(self, event):

@@ -164,7 +164,7 @@ class MVolume(QtWidgets.QWidget):
 
     def mouseMoveEvent(self, event):
         if event.buttons() == QtCore.Qt.LeftButton:
-            ra = self.angleFromXY(event.x(),event.y())
+            ra = self.angleFromXY(event.x(), event.y())
             newAngle = ra
             if ra < 0: newAngle = newAngle + 360.0
             a = self.getAngle(self.oldAngle, newAngle)

@@ -4,6 +4,7 @@ import ctypes
 from signal import Signal
 import platform
 import os
+from math import sqrt
 """
 Author Roganov G.V. roganovg@mail.ru
 """
@@ -13,7 +14,7 @@ NumFFTBands = 44
 NumEQBands = 10
 #EQBandWidth = [3, 4, 4, 4, 5, 6, 5, 4, 3, 3]
 #EQFreq = [80, 160, 320, 600, 1000, 3000, 6000, 10000, 12000, 14000]
-EQBandWidth = [10, 20, 36,  50,  70,  100,  180,   240,   380,   500]
+EQBandWidth = [6, 8, 14,  18,  21,  24,  28,   36,   44,   52]
 EQFreq      = [44, 80, 200, 400, 800, 1600, 3000, 6000, 10000, 14000]
 
 PlayMode_Standby = 0
@@ -152,11 +153,6 @@ class Libraries(list):
         return BASS_StreamCreateURL(ctypes.c_char_p(url.encode('utf-8')), 0, 0, DOWNLOADPROC(0), 0)
 
 
-BassLoaded = BASS_Init(-1, 44100, 0, 0, 0)
-
-libraries = Libraries()
-
-
 class BandData:
     def __init__(self, CenterFreq=0.0, Bandwidth=0.0, Gain=0):
         self.CenterFreq = CenterFreq
@@ -184,6 +180,19 @@ if BassLoaded:
 '''
 
 
+def get_devices():
+    devices = []
+    device_count = 0
+    while True:
+        info = BASS_DEVICEINFO()
+        if not BASS_GetDeviceInfo(device_count, info):
+            break
+        if info.flags & BASS_DEVICE_ENABLED:
+            devices.append((device_count, info.name.decode()))
+        device_count += 1
+    return devices
+
+
 class BassPlayer:
     def __init__(self):
         global player_instance
@@ -191,7 +200,8 @@ class BassPlayer:
         self.ChannelType = Channel_NotOpened
         self.Channel = 0
         self.eqbandcount = NumEQBands
-        self.BassLoaded = False
+        self.BassLoaded = BASS_Init(-1, 44100, 0, 0, 0)
+        self.libraries = Libraries()
         self.BassInfoParam = BASS_INFO()
         self.EqualizerEnabled = False
         self.EQHandle = [0 for i in range(NumEQBands)]
@@ -204,13 +214,19 @@ class BassPlayer:
         self.PlayerMode = PlayMode_Standby
         self.currentfilename = ''
         self.volume = 100
+        self.fft_limits = []
+        b0 = 0
+        for i in range(NumFFTBands):
+            b1 = round(2 ** (i * CALC_FFT))
+            if b1 > 1023: b1 = 1023
+            if b1 <= b0: b1 = b0 + 1
+            self.fft_limits.append((b0, b1))
+            b0 = b1
         self.zerofft = False
         self.tfftdata = ctypes.c_float * 1024
         self.spec_size = SPEC_WIDTH * 2 * 4
         self.tspecdata = ctypes.c_float * SPEC_WIDTH * 2
-        self.BassLoaded = BassLoaded
         self.exts = avial_exts
-
 
     def __del__(self):
         if self.BassLoaded:
@@ -227,7 +243,7 @@ class BassPlayer:
         self.EQHandle = [0 for i in range(NumEQBands)]
         self.fftbands = [0 for i in range(NumFFTBands)]
         if 'http://' in fn or 'https://' in fn:
-            self.Channel = libraries.load_url(fn)
+            self.Channel = self.libraries.load_url(fn)
             if self.Channel == 0:
                 self.lasterror = f'URL not loaded! Error code: {BASS_ErrorGetCode()}'
                 self.status_changed.emit()
@@ -242,7 +258,7 @@ class BassPlayer:
                 print(self.lasterror)
                 return False
             binfn = fn.encode()
-            self.Channel = libraries.load(binfn, ext)
+            self.Channel = self.libraries.load(binfn, ext)
             if self.Channel == 0:
                 self.lasterror = 'File not loaded!'
                 self.status_changed.emit()
@@ -425,8 +441,6 @@ class BassPlayer:
             self.decreasefft()
             return False
 
-        #tfftdata = ctypes.c_float * 2048
-
         fftdata = self.tfftdata()
         fts = BASS_ChannelGetData(self.Channel, ctypes.pointer(fftdata), BASS_DATA_FFT2048)
         if fts == 0xffffffff:
@@ -435,24 +449,16 @@ class BassPlayer:
             return False
         self.zerofft = False
 
-        bands = [0] * NumFFTBands
-        b0 = 0
         scale_3 = 3 * scale
         for i in range(NumFFTBands):
             peak = 0
-            #b1 = round(pow(2, i * 10.0 / (NumFFTBands - 1)))
-            b1 = round(2 ** (i * CALC_FFT))
-            if b1 > 1023: b1 = 1023
-            if b1 <= b0: b1 = b0 + 1
-            for k in range(b0, b1):
+            for k in range(self.fft_limits[i][0], self.fft_limits[i][1]):
                 if peak < fftdata[k]:
                     peak = fftdata[k]
-            b0 = b1
-
-            bands[i] = round(peak**0.5 * scale_3)
+            f = round(peak**0.5 * scale_3)
             # Decrease the value of fftBands[i] smoothly for better looking
-            if bands[i] > self.fftbands[i]:
-                  self.fftbands[i] = bands[i]
+            if f > self.fftbands[i]:
+                  self.fftbands[i] = f
             else:
                 if self.fftbands[i] >= 2:
                     self.fftbands[i] -= 2

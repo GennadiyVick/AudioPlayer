@@ -233,6 +233,12 @@ QDialog {
 #bEqChecked {background:  url(":/images/eq_en.png") no-repeat center center; border: none;}
 #bEqChecked:hover {background:  url(":/images/eq_en_h.png") no-repeat center center;}
 
+#bPlaylist {background:  url(":/images/playlist.png") no-repeat center center; border: none;}
+#bPlaylist:hover {background:  url(":/images/playlist_h.png") no-repeat center center; border: none;}
+
+#bPlaylist_on {background:  url(":/images/playlist_on.png") no-repeat center center; border: none;}
+#bPlaylist_on:hover {background:  url(":/images/playlist_on_h.png") no-repeat center center; border: none;}
+
 #b_addplaylist {background:  url(":/images/add.png") no-repeat center center; border: none;}
 #b_addplaylist:hover {background:  url(":/images/add_h.png") no-repeat center center;}
 

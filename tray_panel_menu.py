@@ -103,7 +103,6 @@ class TrayPanelWidget(QWidget):
         self.animation.setDuration(500)
         self.animation.start()
 
-    #def hideEvent(self, event):
     def hide_panel(self):
         self.animation.setDuration(300)
         self.animation.setStartValue(1.0)
@@ -111,5 +110,4 @@ class TrayPanelWidget(QWidget):
         self.animation.start()
 
     def focusOutEvent(self, event):
-        print("Focus out detected, closing panel...")
         self.hide_panel()

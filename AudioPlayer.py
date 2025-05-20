@@ -149,6 +149,21 @@ class AudioPlayer(QtWidgets.QMainWindow):
         thread.started.connect(self.serv.run)
         thread.start()
 
+    def isMusic(self, fn):
+        exts = set('.'+ext for ext in self.player.exts.split('.') if ext)
+        _, ext = os.path.splitext(fn)
+        return ext.lower() in exts
+
+    def play_filename(self, fn, index=0, scroll_to=False):
+        if self.player.load(fn):
+            self.player.play()
+            self.update_play_info()
+            self.onPlayerPlaylistIndexChanged(index)
+            if scroll_to and index > 0:
+                self.ui.listView.scrollTo(self.model.index(index, 0))
+        else:
+            QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
+
     def read_timer(self):
         self.read_attr_ontime = False
 
@@ -212,16 +227,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
                 index = 0
                 if len(filename) > 0:
                     index = filenames.index(filename)
-                # self.player.playByIndex(index)
-                fn = self.model.item(index).fn
-                if self.player.load(fn):
-                    self.player.play()
-                    self.update_play_info()
-                    self.onPlayerPlaylistIndexChanged(index)
-                else:
-                    QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
-                if index > 0:
-                    self.ui.listView.scrollTo(self.model.index(index, 0))
+                self.play_filename(self.model.item(index).fn, index, scroll_to=True)
         self.read_attr_buffer = []
 
     def doRead(self, data):
@@ -246,38 +252,21 @@ class AudioPlayer(QtWidgets.QMainWindow):
 
         self.ui.listView.doubleClicked.connect(self.listviewdoubleClicked)
         self.ui.bPlay.clicked.connect(self.play)
-        self.ui.bPlay.setFocusPolicy(QtCore.Qt.NoFocus)
-        #self.ui.bPlay.geometry()
-        #self.ui.lPlay.clicked.connect(self.play)
         self.ui.bStop.clicked.connect(self.player.stop)
-        self.ui.bStop.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.bPrev.clicked.connect(self.prev)
-        self.ui.bPrev.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.bNext.clicked.connect(self.next)
-        self.ui.bNext.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.bLoop.clicked.connect(self.loopClicked)
-        self.ui.bLoop.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.b_delfile.clicked.connect(self.delFromPlayList)
-        self.ui.b_delfile.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.b_copytoplaylist.clicked.connect(self.copy_to_playlist)
-        self.ui.b_copytoplaylist.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.b_clearplaylist.clicked.connect(self.clearPlayList)
-        self.ui.b_clearplaylist.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.b_addfile.clicked.connect(self.addFilePlayList)
-        self.ui.b_addfile.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.b_addplaylist.clicked.connect(self.addPlayList)
-        self.ui.b_addplaylist.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.b_delplaylist.clicked.connect(self.delPlayList)
-        self.ui.b_delplaylist.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.b_editplaylist.clicked.connect(self.editPlayList)
-        self.ui.b_editplaylist.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.bEq.clicked.connect(self.eqClick)
-        self.ui.bEq.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.comboBox.activated.connect(self.comboBoxActivated)
         self.ui.bClose.clicked.connect(self.close)
-        self.ui.bClose.setFocusPolicy(QtCore.Qt.NoFocus)
         self.ui.bMin.clicked.connect(self.doMin)
-        self.ui.bMin.setFocusPolicy(QtCore.Qt.NoFocus)
 
         # регистрируем класс QAction исключительно для shortcut -  пробел для вызова паузы или воспроизведения
         # но не всегда это работает. т.к. фокус перехватывается контролами ComboBox(список плейлистов) и listView(плейлист)
@@ -320,13 +309,8 @@ class AudioPlayer(QtWidgets.QMainWindow):
             pass
         if state == 3:
             update_button_style(self.ui.bPlay, 'bPause')
-            #self.ui.lPlay.styles = {'default': labelstyle([':/images/pause.png', ':/images/pause_over.png']),
-            #                        'pressed': labelstyle([':/images/pause_down.png'])}
         else:
             update_button_style(self.ui.bPlay, 'bPlay')
-            #self.ui.lPlay.styles = {'default': labelstyle([':/images/play.png', ':/images/play_over.png']),
-            #                        'pressed': labelstyle([':/images/play_down.png'])}
-
 
     def update_play_info(self):
         fn = self.player.currentfilename
@@ -375,47 +359,23 @@ class AudioPlayer(QtWidgets.QMainWindow):
                     i = self.ui.listView.selectedIndexes()[0].row()
                 else:
                     i = 0
-                fn = self.model.item(i).fn
-                if self.player.load(fn):
-                    self.player.play()
-                    self.update_play_info()
-                    self.onPlayerPlaylistIndexChanged(i)
-                else:
-                    QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
+                self.play_filename(self.model.item(i).fn, i)
 
     def next(self):
         if self.model.rowCount() < 2: return
-        if len(self.ui.listView.selectedIndexes()) > 0:
-            i = self.ui.listView.selectedIndexes()[0].row()
-        else:
-            i = 0
+        i = self.ui.listView.selectedIndexes()[0].row() if len(self.ui.listView.selectedIndexes()) > 0 else 0
         i += 1
         if i >= self.model.rowCount():
             i = 0
-        fn = self.model.item(i).fn
-        if self.player.load(fn):
-            self.player.play()
-            self.update_play_info()
-            self.onPlayerPlaylistIndexChanged(i)
-        else:
-            QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
+        self.play_filename(self.model.item(i).fn, i, True)
 
     def prev(self):
         if self.model.rowCount() < 2: return
-        if len(self.ui.listView.selectedIndexes()) > 0:
-            i = self.ui.listView.selectedIndexes()[0].row()
-        else:
-            i = 0
+        i = self.ui.listView.selectedIndexes()[0].row() if len(self.ui.listView.selectedIndexes()) > 0 else 0
         i -= 1
         if i < 0:
             i = self.model.rowCount() - 1
-        fn = self.model.item(i).fn
-        if self.player.load(fn):
-            self.player.play()
-            self.update_play_info()
-            self.onPlayerPlaylistIndexChanged(i)
-        else:
-            QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
+        self.play_filename(self.model.item(i).fn, i, True)
 
     def onPlayerStreamFinish(self):
         if self.loop == self.LOOP_OFF:
@@ -454,13 +414,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
 
     def listviewdoubleClicked(self, index):
         if index.row() < 0: return
-        fn = self.model.item(index.row()).fn
-        if self.player.load(fn):
-            self.player.play()
-            self.update_play_info()
-            self.onPlayerPlaylistIndexChanged(index.row())
-        else:
-            QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
+        self.play_filename(self.model.item(index.row()).fn, index.row())
 
     def delFromPlayList(self):
         if self.model.rowCount() == 0: return
@@ -588,24 +542,17 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.eqdialog.move(x, y)
         self.eqdialog.show()
 
-    #это обратный вызов от Combobox и ListView
+    # это обратный вызов от Combobox и ListView
     def controlKeyPressed(self, event):
         if event.key() == 32:
             self.player.play_pause()
-        elif event.key() == 16777220:  #ENTER от ListView
+        elif event.key() == 16777220:  # ENTER от ListView
             if self.model.rowCount() == 0: return
             i = self.ui.listView.currentIndex().row()
             if i < 0: return
             for index in self.ui.listView.selectedIndexes():
                 if i == index.row(): return
-
-            fn = self.model.item(i).fn
-            if self.player.load(fn):
-                self.player.play()
-                self.update_play_info()
-                self.onPlayerPlaylistIndexChanged(i)
-            else:
-                QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
+            self.play_filename(self.model.item(i).fn, i)
 
     def loopClicked(self):
         self.setLoop()
@@ -648,17 +595,9 @@ class AudioPlayer(QtWidgets.QMainWindow):
                 item.fn = fn
                 self.model.appendRow(item)
 
-        #self.player.addFiles(filelist, not control)
         self.savePlayList()
         if not control and self.model.rowCount() > 0:
-            fn = self.model.item(0).fn
-            if self.player.load(fn):
-                self.player.play()
-                self.update_play_info()
-                self.onPlayerPlaylistIndexChanged(0)
-            else:
-                QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
-
+            self.play_filename(self.model.item(0).fn)
         event.acceptProposedAction()
 
     def dragEnterEvent(self, event):
@@ -667,64 +606,69 @@ class AudioPlayer(QtWidgets.QMainWindow):
     #private ...
     #Прочие процедуры и функции
 
+    def command_play(self):
+        if self.model.rowCount() == 0:
+            if self.ui.comboBox.count() > 1:
+                self.ui.comboBox.setCurrentIndex(1)
+                self.loadPlayList()
+        self.player.play_pause()
+
     def checkargv(self):
-        filenames = []
-        fname = ''
+        """Проверяем аргументы ищем комманды или список файлов"""
         if len(sys.argv) == 1:
             return
+
+        # В аргументах могут содержаться комманды
         cmd = sys.argv[1].lower()
-        if cmd == '-p':
-            if self.model.rowCount() == 0:
-                if self.ui.comboBox.count() > 1:
-                    self.ui.comboBox.setCurrentIndex(1)
-                    self.loadPlayList()
-            self.player.play_pause()
-            return
-        elif cmd == '-s':
-            self.player.stop()
-            return
-        elif cmd == '-n':
-            self.next()
+        commands = {'-p': self.command_play, '-s': self.player.stop, '-n': self.next}
+        if cmd in commands:
+            commands[cmd]()
             return
 
-        for fn in sys.argv[1:]:
-            fdir = fn
-            if os.path.isfile(fn):
-                fdir = os.path.dirname(fn)
-                fname = fn
-                i = fname.rfind('.')
-                if i > 0:
-                    ext = fname[i:]
-                    if ext not in self.player.exts:
+        # проверяем аргументы на содержимое имён файлов
+        filenames = []
+        # self.player.exts содержит строку наподобии .mp3.wav.m4a и т.д. переводим её в set
+        exts = set(ext for ext in self.player.exts.split('.') if ext)
+        files_args = sys.argv[1:]
+        curent_fn = '' # переменная содержит имя файла, в случае есле передан 1 аргумент, необходима, чтобы с него начать воспроизведение
+        if len(files_args) == 1:
+            fn = files_args[0]
+            ext = os.path.splitext(fn)[1].lower()[1:]
+            # проверяем, что это файл и плеер поддерживает это расширение
+            if os.path.isfile(fn) and ext in exts:
+                curent_fn = fn
+                dir = os.path.dirname(fn)
+                #получаем все файлы из каталога переданного файла
+                files = os.listdir(dir)
+                for f in files:
+                    ext = os.path.splitext(f)[1].lower()[1:]
+                    fn = os.path.join(dir, f)
+                    # если это музыка добавляем в спиок
+                    if os.path.isfile(fn) and ext in exts:
+                        filenames.append(fn)
+            else:
+                print('file is not music')
+        elif len(files_args) > 1:
+            for fn in files_args:
+                if os.path.isfile(fn):
+                    ext = os.path.splitext(fn)[1].lower()
+                    if ext not in exts:
                         QtWidgets.QMessageBox.information(None, tr('attention'), tr('format_not_supported').format(ext=ext))
-                        continue
-                else:
-                    continue
-            elif not os.path.isdir(fn):
-                continue
-            files = os.listdir(fdir)
-            for f in files:
-                if self.isMusic(f):
-                    filenames.append(os.path.join(fdir, f))
-
+                    else:
+                        filenames.append(fn)
+        print(filenames)
         if len(filenames) > 0:
+            # получившийся список добавляем в QListView плейлист
             for fn in filenames:
                 item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), os.path.basename(fn))
                 item.fn = fn
                 self.model.appendRow(item)
             index = 0
-            if len(fname) > 0:
-                index = filenames.index(fname)
-            fn = self.model.item(index).fn
-            if self.player.load(fn):
-                self.player.play()
-                self.update_play_info()
-                self.onPlayerPlaylistIndexChanged(index)
-            else:
-                QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
-            if index > 0:
-                self.ui.listView.scrollTo(self.model.index(index, 0))
+            if len(curent_fn) > 0:
+                index = next((i for i, fn in enumerate(filenames) if fn == curent_fn), 0)
+            self.play_filename(self.model.item(0).fn, index, True)
         else:
+            # если список пуст, то грузим наш первый сохранённый плейлист
             self.loadPlayList()
 
     def createSlider(self):
@@ -751,22 +695,17 @@ class AudioPlayer(QtWidgets.QMainWindow):
         vol.endUpdate()
         self.vol = vol
 
-    def isMusic(self, fn):
-        ext = fn[-4:].lower()
-        return ext in self.player.exts
-
     def loadPlayList(self):
         if self.ui.comboBox.count() == 0 or self.ui.comboBox.currentIndex() < 1:
             fn = os.path.join(self.path, 'default.plt')
         else:
             fn = os.path.join(self.path, self.ui.comboBox.itemText(self.ui.comboBox.currentIndex()) + '.plt')
         self.model.clear()
-        #self.player.playlist.clear()
         if not os.path.isfile(fn): return
         with open(fn, 'r') as f:
             for filename in f:
                 filename = filename.rstrip('\n')
-                if '\9' in filename: #.startswith("http")
+                if '\9' in filename:
                     url, title = filename.split('\9')
                     item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), title)
                     item.fn = url
@@ -774,7 +713,6 @@ class AudioPlayer(QtWidgets.QMainWindow):
                     item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), os.path.basename(filename))
                     item.fn = filename
                 self.model.appendRow(item)
-        #self.player.addFiles(filenames)
 
     def savePlayList(self):
         if self.ui.comboBox.count() == 0 or self.ui.comboBox.currentIndex() < 1:
@@ -882,7 +820,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
     def show_tray_panel(self):
         pos = QtGui.QCursor.pos()
         self.tray_panel.vol.setPos(self.vol.position)
-        self.tray_panel.move(pos.x()-self.tray_panel.width(), pos.y()-self.tray_panel.height()-10)
+        self.tray_panel.move(pos.x()-self.tray_panel.width()+30, pos.y()-self.tray_panel.height()-10)
         self.tray_panel.show()
 
     def do_move(self, x, y):
