@@ -19,9 +19,10 @@ from musinfo import  MP3Data
 from BASSPlayer import BassPlayer, PlayMode_Playing, PlayMode_Paused, Channel_Internet
 from m3uparser import parse_m3u_from_file
 from tray_panel_menu import TrayPanelWidget
+from link_dialog import show_url_dialog
+from file_dialog import FileDialog
 
-
-VERSION = '2.5.6'
+VERSION = '2.5.8'
 
 
 # for one application instance only
@@ -76,6 +77,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.path = os.path.dirname(sets.fileName())
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
+        self.presets_filename = os.path.join(self.path, 'eq_presets.json')
         # cоздаю свой контрол управления громкостью
         self.createVolumeControl()
         # контрол управления временем/позицией
@@ -260,6 +262,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.ui.b_copytoplaylist.clicked.connect(self.copy_to_playlist)
         self.ui.b_clearplaylist.clicked.connect(self.clearPlayList)
         self.ui.b_addfile.clicked.connect(self.addFilePlayList)
+        self.ui.b_addlink.clicked.connect(self.addLinkPlayList)
         self.ui.b_addplaylist.clicked.connect(self.addPlayList)
         self.ui.b_delplaylist.clicked.connect(self.delPlayList)
         self.ui.b_editplaylist.clicked.connect(self.editPlayList)
@@ -283,7 +286,10 @@ class AudioPlayer(QtWidgets.QMainWindow):
         if self.player.PlayerMode == PlayMode_Playing:
             s_pos, s_max = self.player.get_position(), self.player.get_length()
             self.timeChange(s_pos, s_max)
-            self.slider.posChange(round(s_pos / s_max * 1000))
+            if s_max == 0:
+                self.slider.posChange(0)
+            else:
+                self.slider.posChange(round(s_pos / s_max * 1000))
         elif self.player.PlayerMode == PlayMode_Paused:
             pass
         else:
@@ -452,17 +458,28 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.model.clear()
         self.savePlayList()
 
+    def addLinkPlayList(self):
+        title, url = show_url_dialog(self)
+        if title is None or url is None:
+            return
+        item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), title)
+        item.fn = url
+        self.model.appendRow(item)
+
     def addFilePlayList(self):
-        exts = self.player.exts.replace('.', ' *.')
-        exts = f'MUSIC ({exts});;Playlists (*.plt);;M3U playlist (*.m3u *.m3u8)'
-        filenames, f_ext = QtWidgets.QFileDialog.getOpenFileNames(self, tr("select_file"), filter=exts)
+        exts = self.player.exts.replace('.', ' *.').strip().replace(' ', ',')
+        filter = [('MUSIC', exts), ('Playlists', '*.plt'), ('M3U playlists', '*.m3u, *.m3u8')]
+        # print(filter)
+        # exts = f'MUSIC ({exts});;Playlists (*.plt);;M3U playlist (*.m3u *.m3u8)'
+        filenames, f_ext_index = FileDialog.select_file(self, filters=filter)
+        # filenames, f_ext = QtWidgets.QFileDialog.getOpenFileNames(self, tr("select_file"), filter=exts)
         if not filenames: return
-        if 'MUSIC (' in f_ext:
+        if f_ext_index == 0:
             for fn in filenames:
                 item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), os.path.basename(fn))
                 item.fn = fn
                 self.model.appendRow(item)
-        elif 'M3U playlist' in f_ext:
+        elif f_ext_index == 2:
             for filename in filenames:
                 mlist = parse_m3u_from_file(filename)
                 for m in mlist:
@@ -525,7 +542,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
 
     def eqClick(self):
         if self.eqdialog is None:
-            self.eqdialog = Equalizer(self.player)
+            self.eqdialog = Equalizer(self.player, presets_filename=self.presets_filename)
             self.eqdialog.on_close.connect(self.eq_close)
         if self.eqdialog.isVisible():
             self.eqdialog.close()
@@ -594,6 +611,14 @@ class AudioPlayer(QtWidgets.QMainWindow):
                 item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), os.path.basename(fn))
                 item.fn = fn
                 self.model.appendRow(item)
+            else:
+                _, ext = os.path.splitext(fn)
+                if ext.lower() == '.m3u':
+                    mlist = parse_m3u_from_file(fn)
+                    for m in mlist:
+                        item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), m[0])
+                        item.fn = m[1]
+                        self.model.appendRow(item)
 
         self.savePlayList()
         if not control and self.model.rowCount() > 0:

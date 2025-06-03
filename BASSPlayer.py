@@ -284,8 +284,9 @@ class BassPlayer:
         elif v < 0:
             v = 0
         self.volume = v
-        if self.ChannelType == Channel_Stream:
+        if self.ChannelType == Channel_Stream or Channel_Internet:
             BASS_ChannelSetAttribute(self.Channel, BASS_ATTRIB_VOL, v/100)
+
             #return BASS_SetVolume(v/100)
 
     def play_pause(self):

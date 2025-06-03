@@ -67,14 +67,14 @@ QMenu::icon {
     border-color: #60404050;
     border-radius: 10px;
 }
-QLineEdit {
+QLineEdit, QPlainTextEdit {
     padding:3px 4px;
     border:1px solid rgba(63, 84, 140, 1.000);
     background:rgba(0, 0, 0, 0.0);
     border-radius:6px;
     color: #eee;
 }
-QLineEdit:focus {
+QLineEdit:focus, QPlainTextEdit:focus {
     border-color:rgba(138, 180, 247, 1.000);
 }
 
@@ -251,6 +251,9 @@ QDialog {
 #b_addfile {background:  url(":/images/add.png") no-repeat center center; border: none;}
 #b_addfile:hover {background:  url(":/images/add_h.png") no-repeat center center;}
 
+#b_addlink {background:  url(":/images/add_link.png") no-repeat center center; border: none;}
+#b_addlink:hover {background:  url(":/images/add_link_h.png") no-repeat center center;}
+
 #b_delfile {background:  url(":/images/del.png") no-repeat center center; border: none;}
 #b_delfile:hover {background:  url(":/images/del_h.png") no-repeat center center;}
 
@@ -262,3 +265,6 @@ QDialog {
 
 #bMenu {background:  url(":/images/menu.png") no-repeat center center; border: none;}
 #bMenu:hover {background:  url(":/images/menu_h.png") no-repeat center center;}
+
+#bUp {background:  url(":/images/folder_up.png") no-repeat center center; border: none;}
+#bUp:hover {background:  url(":/images/folder_up_h.png") no-repeat center center; border: none;}

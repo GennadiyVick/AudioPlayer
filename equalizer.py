@@ -1,3 +1,6 @@
+import json
+import os.path
+
 from PyQt5 import QtGui, QtCore,QtWidgets
 from eqwindow import Ui_eq_window
 from eqslider import EqSlider
@@ -10,14 +13,15 @@ def set_item_icon(icon_fn):
     icon.addPixmap(QtGui.QPixmap(icon_fn), QtGui.QIcon.Normal, QtGui.QIcon.Off)
     return icon
 
+
 class Equalizer(QtWidgets.QWidget):
     on_close = QtCore.pyqtSignal()
 
-    def __init__(self, player=None):
+    def __init__(self, player=None, presets_filename=None):
         super(Equalizer, self).__init__()
         self.ui = Ui_eq_window()
         self.ui.setupUi(self)
-
+        self.presets_filename = presets_filename
         self.player = player
         self.w_barsLayout = QtWidgets.QHBoxLayout(self.ui.w_bars)
         self.w_barsLayout.setContentsMargins(0, 2, 0, 2)
@@ -28,6 +32,15 @@ class Equalizer(QtWidgets.QWidget):
         #self.ui.l_reset.onClick.connect(self.reset_eq)
         self.ui.bMenu.clicked.connect(self.show_menu)
         self.sliderlist = []
+        self.presets = []
+        self.enable_presets = self.presets_filename is not None and len(self.presets_filename) > 0
+
+        if self.enable_presets and os.path.isfile(self.presets_filename):
+            try:
+                with open(self.presets_filename, 'r') as f:
+                    self.presets = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                self.presets = []
 
         self.ui.cbEnable.setChecked(self.player.EqualizerEnabled)
         self.band_title_l = []
@@ -91,6 +104,7 @@ class Equalizer(QtWidgets.QWidget):
         #settings_action.setIcon(set_item_icon(":/images/set.png"))
         #settings_action.triggered.connect(self.show_settings)
         #menu.exec_(QtCore.QPoint(0, 0))
+
         reset_action = QtWidgets.QAction(tr('tool_tip_reset_eq'))
         reset_action.triggered.connect(self.reset_eq)
         reset_icon = QtGui.QIcon(':images/reset_eq.png')
@@ -100,12 +114,70 @@ class Equalizer(QtWidgets.QWidget):
         icon = QtGui.QIcon(':/images/set.png')
         settings_action.setIcon(icon)
         menu = QtWidgets.QMenu(self)
+        if self.enable_presets:
+            p_menu = QtWidgets.QMenu(menu)
+            p_menu.setTitle(tr('presets'))
+            p_menu.setIcon(QtGui.QIcon(':/images/eq_icon.png'))
+            save_as_preset = QtWidgets.QAction(tr('save_bands'))
+            save_as_preset.triggered.connect(self.save_preset)
+            save_as_preset.setIcon(QtGui.QIcon(':/images/add_icon.png'))
+            p_menu.addAction(save_as_preset)
+            delete_preset = QtWidgets.QAction(tr('delete_preset'))
+            delete_preset.triggered.connect(self.delete_preset)
+            delete_preset.setIcon(QtGui.QIcon(':/images/close.png'))
+            p_menu.addAction(delete_preset)
+            if len(self.presets) > 0:
+                p_menu.addSection("")
+                for eq in self.presets:
+                    action = QtWidgets.QAction(eq['name'])
+                    action.triggered.connect(lambda: self.preset_apply(eq['items']))
+                    action.setIcon(QtGui.QIcon(':/images/eq_icon.png'))
+                    p_menu.addAction(action)
+            menu.addMenu(p_menu)
+        menu.addSection("")
         menu.addAction(reset_action)
         menu.addSection("")
         menu.addAction(settings_action)
         menu.setMinimumWidth(200)
         pos = self.ui.bMenu.mapToGlobal(QtCore.QPoint(-170,30))
         menu.exec_(pos)
+
+    def save_preset(self):
+        if not self.enable_presets: return
+        name, res = QtWidgets.QInputDialog.getText(self, tr('save_eq_bands'), tr('enter_name'))
+        for i in range(len(self.presets)):
+            if name == self.presets[i]['name']:
+                QtWidgets.QMessageBox.warning(self, tr('error'), tr('preset_name_exists'))
+                return
+        if res and len(name) > 1:
+            items = []
+            for i in range(len(self.sliderlist)):
+                items.append(self.sliderlist[i].pos - 15)
+            self.presets.append({'name': name, 'items': items})
+            self.save_presets()
+
+    def delete_preset(self):
+        if not self.enable_presets: return
+        names = [eq['name'] for eq in self.presets]
+        item, result = QtWidgets.QInputDialog.getItem(self, tr('presets'), tr('select_preset'), names)
+        if result:
+            for i in range(len(self.presets)):
+                if item == self.presets[i]['name']:
+                    del self.presets[i]
+                    self.save_presets()
+                    break
+
+    def save_presets(self):
+        if not self.enable_presets: return
+        with open(self.presets_filename, 'w', encoding='utf-8') as f:
+            json.dump(self.presets, f, ensure_ascii=False, indent=4)
+
+    def preset_apply(self, items):
+        for i in range(len(items)):
+            sl = self.sliderlist[i]
+            sl.setPos(items[i]+15)
+            sl.lab.setText(str(items[i]))
+            self.player.set_eqgain(i, items[i])
 
     def sliderPosChange(self, slider, pos):
         slider.lab.setText(str(pos-15))
