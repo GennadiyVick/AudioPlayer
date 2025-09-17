@@ -1,4 +1,4 @@
-# Audio player 🎧
+# Audio player v.2.6 🎧
 ## Based on the BASS library
 https://www.un4seen.com/bass.html
 
