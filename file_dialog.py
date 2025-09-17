@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 from file_dialog_ui import Ui_FileDialog
 import os
 from lang import tr

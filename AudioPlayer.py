@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Audio player using lib bass and pyqt5
+Audio player using lib bass and PySide6
 Author Roganov G.V. roganovg@mail.ru
 """
 
@@ -8,7 +8,7 @@ import sys
 import os
 os.chdir(os.path.dirname(os.path.realpath(__file__)))  # need for bass library loading
 
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 from mainwindow import Ui_MainWindow
 from mvolume import MVolume
 from mslider import MSlider
@@ -22,7 +22,8 @@ from tray_panel_menu import TrayPanelWidget
 from link_dialog import show_url_dialog
 from file_dialog import FileDialog
 
-VERSION = '2.5.8'
+VERSION = '2.6'
+__version__ = VERSION
 
 
 # for one application instance only
@@ -71,6 +72,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.tray = None
+        self.can_close = False
         self.ui.l_version.setText('v.'+VERSION)
         sets = QtCore.QSettings(QtCore.QSettings.IniFormat, QtCore.QSettings.UserScope,
                                 os.path.join('RoganovSoft', 'AudioPlayer'), "config")
@@ -116,8 +118,8 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.initTray()
         self.read_attr_buffer = []
         self.read_attr_ontime = False
-
-        self.screen_rect = QtWidgets.QApplication.desktop().screen().rect()
+        screen = QtWidgets.QApplication.primaryScreen()
+        self.screen_rect = screen.availableGeometry()
         self.eqdialog = None
         # Таймер cтатуса
         self.timer = QtCore.QTimer(self)
@@ -132,13 +134,14 @@ class AudioPlayer(QtWidgets.QMainWindow):
         # Запускаем прослушиваюий сервер для передачи параметров с других экземляров
         self.runserver()
         # Вместо контекстного меню в трее использую панель с кнопками
-        self.tray_panel = TrayPanelWidget()
+        self.tray_panel = TrayPanelWidget(player=self.player)
         self.tray_panel.stop_click.connect(self.player.stop)
         self.tray_panel.play_click.connect(self.player.play)
         self.tray_panel.pause_click.connect(self.player.pause)
         self.tray_panel.next_click.connect(self.next)
         self.tray_panel.prev_click.connect(self.prev)
         self.tray_panel.volume_changed.connect(self.tray_panel_volume_changed)
+
 
     # Необходим для приёма данных от вторичных запущенных экземпляров приложений,
     # когда ассоциируем аудио файлы с этим приложением.
@@ -161,7 +164,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
             self.player.play()
             self.update_play_info()
             self.onPlayerPlaylistIndexChanged(index)
-            if scroll_to and index > 0:
+            if scroll_to:
                 self.ui.listView.scrollTo(self.model.index(index, 0))
         else:
             QtWidgets.QMessageBox.warning(self, 'ERROR', self.player.lasterror)
@@ -191,7 +194,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
 
                 self.player.play_pause()
             elif self.read_attr_buffer[0].lower() == '-n':
-                pass
+                self.next()
             elif self.read_attr_buffer[0].lower() == '-vs':
                 self.player.set_volume(30)
             elif self.read_attr_buffer[0].lower() == '-vl':
@@ -277,7 +280,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.ui.comboBox.keyPressed.connect(self.controlKeyPressed)
         self.ui.listView.keyPressed.connect(self.controlKeyPressed)
 
-        self.actionPlayPause = QtWidgets.QAction(self)
+        self.actionPlayPause = QtGui.QAction(self)
         self.actionPlayPause.setObjectName("actionPlayPause")
         self.actionPlayPause.setShortcut("Space")
         self.actionPlayPause.triggered.connect(self.player.play_pause)
@@ -401,8 +404,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
 
     def onPlayerPlaylistIndexChanged(self, index):
         self.ui.listView.clearSelection()
-        self.ui.listView.selectionModel().select(self.model.index(index, 0), QtCore.QItemSelectionModel.Toggle)
-        self.ui.listView.update()
+        self.ui.listView.selectionModel().select(self.model.index(index, 0), QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Toggle)
 
     #Прочие методы событий.......
 
@@ -596,9 +598,30 @@ class AudioPlayer(QtWidgets.QMainWindow):
     #СОБЫТИЯ Главного окна
 
     def closeEvent(self, event):
-        self.serv.keep_running = False
+        if self.can_close:
+            super().closeEvent(event)
+            return
+        if self.serv:
+            self.serv.keep_running = False
         self.saveSets()
+
+        if self.serv:
+            if self.serv.thread and self.serv.thread.isRunning():
+                self.serv.keep_running = False
+                self.serv.thread.wait()
+
         super().closeEvent(event)
+
+    def forceThreadCleanup(self):
+        """Принудительная очистка потоков"""
+        if self.serv:
+            if self.serv.thread and self.serv.thread.isRunning():
+                self.serv.thread.terminate()
+                self.serv.thread.wait()
+
+        # Теперь закрываем приложение
+        self.can_close = True
+        self.close()
 
     def dropEvent(self, event):
         control = (event.keyboardModifiers() & QtCore.Qt.ControlModifier) == QtCore.Qt.ControlModifier
@@ -681,7 +704,6 @@ class AudioPlayer(QtWidgets.QMainWindow):
                         QtWidgets.QMessageBox.information(None, tr('attention'), tr('format_not_supported').format(ext=ext))
                     else:
                         filenames.append(fn)
-        print(filenames)
         if len(filenames) > 0:
             # получившийся список добавляем в QListView плейлист
             for fn in filenames:
@@ -864,10 +886,25 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.vol.setPos(volume)
         self.player.set_volume(volume)
 
+    def changeEvent(self, event):
+        if event.type() == QtCore.QEvent.WindowStateChange:
+            if self.windowState() & QtCore.Qt.WindowMaximized:
+                event.ignore()
+                self.showNormal()
+                return
+            if self.windowState() & QtCore.Qt.WindowMinimized:
+                event.ignore()
+                self.tray.show()
+                self.hide()
+                self.vistimer.stop()
+                return
+        super().changeEvent(event)
+
 
 def main():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
     app = Application(sys.argv)
     if not app.lock():
         if len(sys.argv) > 1:
@@ -886,7 +923,7 @@ def main():
     app.mainwindow = main_window
     main_window.show()
     try:
-        sys.exit(app.exec_())
+        sys.exit(app.exec())
     finally:
         app.unlock()
 

@@ -1,7 +1,27 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton, QGraphicsOpacityEffect
-from PyQt5.QtCore import Qt, pyqtSignal, QPropertyAnimation
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QGraphicsOpacityEffect
+from PySide6.QtCore import Qt, Signal, QPropertyAnimation
+from PySide6 import QtCore, QtGui
 from mvolume import MVolume
+
+
+class LevelWidget(QWidget):
+    def __init__(self, parent):
+        super(LevelWidget, self).__init__(parent)
+        self.level = 0
+
+    def set_level(self, level):
+        l = int(level * 100) if level < 0.5 else 50
+        self.level = l / 50
+        self.repaint()
+
+    def paintEvent(self, event):
+        with QtGui.QPainter(self) as painter:
+            painter.fillRect(0, 0, self.width(), self.height(), QtGui.QColor(0, 0, 0, 0))
+            #painter.fillRect(0, 0, self.width(), self.height(), QtGui.QColor(255, 0, 0))
+            if self.level > 0:
+                bar_width = int(self.width() * self.level)
+                color = QtGui.QColor(0, 200, 255)  # Зелёный цвет
+                painter.fillRect(0, 0, bar_width, self.height(), color)
 
 
 def create_button(name, left_pos, parent, event):
@@ -9,42 +29,47 @@ def create_button(name, left_pos, parent, event):
     btn.setText('')
     btn.setObjectName(name)
     btn.setFlat(True)
-    btn.setGeometry(QtCore.QRect(left_pos, 0, 60, 45))
+    btn.setGeometry(QtCore.QRect(left_pos, 3, 60, 45))
     btn.setFocusPolicy(Qt.NoFocus)
     btn.clicked.connect(event)
     return btn
 
 
 class TrayPanelWidget(QWidget):
-    play_click = pyqtSignal()
-    pause_click = pyqtSignal()
-    stop_click = pyqtSignal()
-    prev_click = pyqtSignal()
-    next_click = pyqtSignal()
-    volume_changed = pyqtSignal(int)
+    play_click = Signal()
+    pause_click = Signal()
+    stop_click = Signal()
+    prev_click = Signal()
+    next_click = Signal()
+    volume_changed = Signal(int)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, player=None):
         super().__init__(parent)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        # Устанавливаем размеры
-        self.resize(272, 45)
-        self.main_layout = QHBoxLayout(self)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
+        self.player = player
+        self.resize(272, 49)
+        self.central_layout = QVBoxLayout(self)
+        self.central_layout.setSpacing(0)
+        self.central_layout.setContentsMargins(0, 0, 0, 0)
 
+        #self.level_widget.move(4, 2)
         self.buttons_container = QWidget(self)
+        #self.buttons_container.move(0, 4)
+        #self.buttons_container.resize(269, 45)
         self.buttons_container.setObjectName('wButtonContainer')
-        self.buttons_container.setMinimumSize(QtCore.QSize(269, 45))
-        self.buttons_container.setMaximumSize(QtCore.QSize(269, 45))
+        self.level_widget = LevelWidget(self.buttons_container) #QWidget(self.buttons_container)
+        self.level_widget.resize(256, 2)
+        self.level_widget.move(8, 4)
 
         # Добавляем кнопки
-        self.prev_button  = create_button('bPrev', -1, self.buttons_container, self.on_prev_clicked)
-        self.play_button  = create_button('bPlay', 41, self.buttons_container, self.on_play_clicked)
+        self.prev_button = create_button('bPrev', -1, self.buttons_container, self.on_prev_clicked)
+        self.play_button = create_button('bPlay', 41, self.buttons_container, self.on_play_clicked)
         self.pause_button = create_button('bPause',83, self.buttons_container, self.on_pause_clicked)
-        self.stop_button  = create_button('bStop', 125, self.buttons_container, self.on_stop_clicked)
-        self.next_button  = create_button('bNext', 167, self.buttons_container, self.on_next_clicked)
+        self.stop_button = create_button('bStop', 125, self.buttons_container, self.on_stop_clicked)
+        self.next_button = create_button('bNext', 167, self.buttons_container, self.on_next_clicked)
         self.create_volume_control()
+        self.central_layout.addWidget(self.buttons_container)
 
         self.opacity_effect = QGraphicsOpacityEffect(self)
         self.opacity_effect.setOpacity(1.0)
@@ -57,11 +82,24 @@ class TrayPanelWidget(QWidget):
         self.animation.setStartValue(0.0)
         self.animation.setEndValue(1.0)
         self.animation.finished.connect(self.do_close)
+        self.fft_timer = QtCore.QTimer(self)
+        self.fft_timer.setInterval(50)
+        self.fft_timer.timeout.connect(self.fft_timer_timeout)
+        self.fft_timer.start()
+
+    def fft_timer_timeout(self):
+        if self.isVisible() and self.player is not None:
+            fft = self.player.get_mini_fftdata()
+            if fft is None:
+                if self.level_widget.level != 0:
+                    self.level_widget.set_level(0)
+            else:
+                self.level_widget.set_level(fft)
 
     def create_volume_control(self):
         self.vol = MVolume(self.buttons_container)
         self.vol.resize(38, 38)
-        self.vol.move(225, 6)
+        self.vol.move(225, 8)
         self.vol.beginUpdate()
         self.vol.setKnobBgImage(QtGui.QPixmap(":/images/small_knob_bg.png"))
         self.vol.setKnobImage(QtGui.QPixmap(":/images/small_knob_ind.png"))

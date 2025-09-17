@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtCore,QtWidgets
+from PySide6 import QtGui, QtCore,QtWidgets
 from colorsys import hsv_to_rgb
 from BASSPlayer import NumFFTBands
 
@@ -153,29 +153,23 @@ class VisWidget(QtWidgets.QWidget):
             if self.draw_type == 0:
                 if all(v < 1 for v in self.drawer_winamp.peakvalues):
                     self.zerofft = zerofft
-                    self.update()
-                    #self.repaint()
-                    return
             else:
                 self.zerofft = zerofft
-                self.update()
-                #self.repaint()
-                return
         else:
             self.zerofft = zerofft
         #self.update()
-        self.repaint()
+        if self.updatebusy == 0:
+            self.repaint()
 
     def paintEvent(self, event):
         if self.updatebusy > 0:
             return
-        painter = QtGui.QPainter(self)
-        if self.draw_type == 0:
-            self.drawer_winamp.draw(painter, self.fftbands)
-        else:
-            self.drawer_gradient.draw(painter, self.fftbands)
+        with QtGui.QPainter(self) as painter:
+            if self.draw_type == 0:
+                self.drawer_winamp.draw(painter, self.fftbands)
+            else:
+                self.drawer_gradient.draw(painter, self.fftbands)
 
-        painter.end()
         self.updatebusy -= 1
         if self.updatebusy < 0:
             self.updatebusy = 0

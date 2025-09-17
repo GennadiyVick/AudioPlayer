@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from lang import tr
 from mywidgets import CaptionWidget, MyLabel
 
@@ -49,7 +49,7 @@ class Ui_Dialog(object):
         font.setPointSize(10)
         font.setBold(True)
         font.setItalic(False)
-        font.setWeight(75)
+        font.setWeight(QtGui.QFont.Weight.Bold)
         self.l_caption.setFont(font)
         # self.l_caption.setAlignment(QtCore.Qt.AlignCenter)
         self.l_caption.setObjectName("l_caption")

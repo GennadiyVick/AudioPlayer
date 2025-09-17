@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 import images_rc
 
 
@@ -37,9 +37,10 @@ class CaptionWidget(QtWidgets.QWidget):
         if len(self.caption) == 0:
             super(CaptionWidget, self).paintEvent(event)
             return
-        painter = QtGui.QPainter(self)
-        painter.setPen(QtGui.QColor(220, 220, 255))
-        painter.drawText(event.rect().adjusted(1, 1, 1, 1), QtCore.Qt.AlignCenter, self.caption)
+        with QtGui.QPainter(self) as painter:
+            painter.setPen(QtGui.QColor(220, 220, 255))
+            painter.drawText(event.rect().adjusted(1, 1, 1, 1), QtCore.Qt.AlignCenter, self.caption)
+
 
 
 class VerSizeWidget(QtWidgets.QWidget):
@@ -74,9 +75,9 @@ class VerSizeWidget(QtWidgets.QWidget):
 
 
 class MouseWidget(QtWidgets.QLabel):
-    onMousePress = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    onMouseRelease = QtCore.pyqtSignal(QtGui.QMouseEvent)
-    onMouseMove = QtCore.pyqtSignal(QtGui.QMouseEvent)
+    onMousePress = QtCore.Signal(QtGui.QMouseEvent)
+    onMouseRelease = QtCore.Signal(QtGui.QMouseEvent)
+    onMouseMove = QtCore.Signal(QtGui.QMouseEvent)
 
     def __init__(self, parent=None):
         super(MouseWidget, self).__init__(parent)
@@ -100,7 +101,7 @@ class MouseWidget(QtWidgets.QLabel):
 
 
 class MyLabel(QtWidgets.QLabel):
-    onClick = QtCore.pyqtSignal()
+    onClick = QtCore.Signal()
 
     def __init__(self, styles, parent):
         super(MyLabel, self).__init__(parent)
@@ -150,7 +151,7 @@ class MyLabel(QtWidgets.QLabel):
 
 
 class MyCheckBox(QtWidgets.QLabel):
-    toggled = QtCore.pyqtSignal()
+    toggled = QtCore.Signal()
 
     def __init__(self, parent=None):
         super(MyCheckBox, self).__init__(parent)
@@ -177,7 +178,7 @@ class MyCheckBox(QtWidgets.QLabel):
 
 
 class MyComboBox(QtWidgets.QComboBox):
-    keyPressed = QtCore.pyqtSignal(QtGui.QKeyEvent)
+    keyPressed = QtCore.Signal(QtGui.QKeyEvent)
 
     def keyPressEvent(self, event):
         if event.key() == 32:
@@ -187,7 +188,7 @@ class MyComboBox(QtWidgets.QComboBox):
 
 
 class MyListView(QtWidgets.QListView):
-    keyPressed = QtCore.pyqtSignal(QtGui.QKeyEvent)
+    keyPressed = QtCore.Signal(QtGui.QKeyEvent)
 
     def __init__(self, parent):
         super(MyListView, self).__init__(parent)
@@ -288,13 +289,12 @@ class ImageWidget(QtWidgets.QWidget):
 
     def paintEvent(self, event):
         if self.pix is None: return
-        painter = QtGui.QPainter(self)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        brush = QtGui.QBrush(self.pix)
-        painter.setBrush(brush)
-        pen = QtGui.QPen()
-        pen.setWidth(0)
-        pen.setStyle(QtCore.Qt.NoPen)
-        painter.setPen(pen)
-        painter.drawRoundedRect(QtCore.QRect(0, 0, self.pix.width(), self.pix.height()), self.roundconners, self.roundconners)
-        painter.end()
+        with QtGui.QPainter(self) as painter:
+            painter.setRenderHint(QtGui.QPainter.Antialiasing)
+            brush = QtGui.QBrush(self.pix)
+            painter.setBrush(brush)
+            pen = QtGui.QPen()
+            pen.setWidth(0)
+            pen.setStyle(QtCore.Qt.NoPen)
+            painter.setPen(pen)
+            painter.drawRoundedRect(QtCore.QRect(0, 0, self.pix.width(), self.pix.height()), self.roundconners, self.roundconners)

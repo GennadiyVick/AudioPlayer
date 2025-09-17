@@ -13,18 +13,19 @@ https://www.un4seen.com/bass.html
 - Up, down keys - navigate through the playlist
 - Enter - play the selected item in the playlist
 ## Required:
-To run the program, you need BASS library (see in libs archive for your OS), python itself and the installed PyQt5 module.
+To run the program, you need BASS library (see in libs archive for your OS), python itself and the installed PySide6 module.
 Starting with version 2.4.0 the `mutagen` module is required for operation.
 
 ### 🪟 MS Windows:
+First, you need to install the Python interpreter if you don't have it already.
 You can download the distribution from [python.org](https://www.python.org/downloads/) and double-click the installation
-after installation, you need to install the `PyQt5` and `mutagen` modules, to do this in the console enter 
+after installation, you need to install the `PySide6` and `mutagen` modules, to do this in the console enter 
 ```console
-python -m pip install pyqt5
+python -m pip install PySide6
 python -m pip install mutagen
 ```
 the program will download and install the module.
-Then copy bass.dll to AudioPlayer.py directory from libs.zip/windows/x64, if you need support m4a and acc, wma formats see such libraryes in libs.zip/windows/aac and wma
+Then copy bass.dll to AudioPlayer.py directory from libs.zip/windows/x64, if you need support m4a, acc and wma formats see such libraryes in libs.zip/windows/aac and wma
 
 To run this program, you must enter in the console
 ```console
@@ -39,7 +40,7 @@ pythonw program_path\AudioPlayer.py
 ### 🐧 Linux:
 For the program to work in Linux, you need to use python version 3 or higher.
 Most distributions have python preinstalled and you don't need to download and install it, 
-you just need to install the `PyQt5` module.
+you just need to install the `PySide6` and `mutagen` modules.
 If you do not have python3 installed, you can install it using your package manager, 
 for example, in distributions based on Debian, it is installed like this:
 ```console
@@ -47,7 +48,7 @@ sudo apt-get install python3
 ```
 To install the modules in the console, enter
 ```console
-sudo apt-get install python3-pyqt5
+pip3 install pyside6
 pip3 install mutagen
 ```
 module will be automatically downloaded and installed.

@@ -1,5 +1,5 @@
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from mywidgets import MyComboBox, MyListView, CaptionWidget, VerSizeWidget, ImageWidget
 from viswidget import VisWidget
 # from viswidget3 import VisualWidget
@@ -38,6 +38,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(342, 592)
         MainWindow.setWindowFlags(QtCore.Qt.FramelessWindowHint) # | QtCore.Qt.Tool
         MainWindow.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        MainWindow.setWindowFlags(MainWindow.windowFlags() & ~QtCore.Qt.WindowMaximizeButtonHint)
         MainWindow.setWindowTitle("AudioPlayer")
         MainWindow.setContentsMargins(14, 14, 14, 14)
 
@@ -71,7 +72,7 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         font.setBold(True)
         font.setItalic(False)
-        font.setWeight(75)
+        font.setWeight(QtGui.QFont.Weight.Bold)
         self.caption_widget.setFont(font)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHeightForWidth(self.caption_widget.sizePolicy().hasHeightForWidth())

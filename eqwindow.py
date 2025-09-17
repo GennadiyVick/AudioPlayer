@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from mywidgets import CaptionWidget, MyCheckBox
 from lang import tr
 
@@ -56,7 +56,7 @@ class Ui_eq_window(object):
         font.setPointSize(10)
         font.setBold(True)
         font.setItalic(False)
-        font.setWeight(75)
+        font.setWeight(QtGui.QFont.Weight.Bold)
         self.l_caption.setFont(font)
 
         #self.l_caption.setAlignment(QtCore.Qt.AlignCenter)

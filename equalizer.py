@@ -1,7 +1,7 @@
 import json
 import os.path
 
-from PyQt5 import QtGui, QtCore,QtWidgets
+from PySide6 import QtGui, QtCore,QtWidgets
 from eqwindow import Ui_eq_window
 from eqslider import EqSlider
 from eqsettings import show_eq_settings
@@ -15,7 +15,7 @@ def set_item_icon(icon_fn):
 
 
 class Equalizer(QtWidgets.QWidget):
-    on_close = QtCore.pyqtSignal()
+    on_close = QtCore.Signal()
 
     def __init__(self, player=None, presets_filename=None):
         super(Equalizer, self).__init__()
@@ -28,8 +28,6 @@ class Equalizer(QtWidgets.QWidget):
         self.w_barsLayout.setSpacing(0)
         self.w_barsLayout.setObjectName("w_barsLayout")
         self.ui.bClose.clicked.connect(self.close)
-        #self.ui.bSettings.onClick.connect(self.show_settings)
-        #self.ui.l_reset.onClick.connect(self.reset_eq)
         self.ui.bMenu.clicked.connect(self.show_menu)
         self.sliderlist = []
         self.presets = []
@@ -97,19 +95,12 @@ class Equalizer(QtWidgets.QWidget):
 
         self.ui.cbEnable.toggled.connect(self.cbEnableToggled)
 
-
     def show_menu(self):
-        #menu = QtWidgets.QMenu(self)
-        #settings_action = QtWidgets.QAction(tr("tool_tip_settings_eq"))
-        #settings_action.setIcon(set_item_icon(":/images/set.png"))
-        #settings_action.triggered.connect(self.show_settings)
-        #menu.exec_(QtCore.QPoint(0, 0))
-
-        reset_action = QtWidgets.QAction(tr('tool_tip_reset_eq'))
+        reset_action = QtGui.QAction(tr('tool_tip_reset_eq'))
         reset_action.triggered.connect(self.reset_eq)
         reset_icon = QtGui.QIcon(':images/reset_eq.png')
         reset_action.setIcon(reset_icon)
-        settings_action = QtWidgets.QAction(tr('tool_tip_settings_eq'))
+        settings_action = QtGui.QAction(tr('tool_tip_settings_eq'))
         settings_action.triggered.connect(self.show_settings)
         icon = QtGui.QIcon(':/images/set.png')
         settings_action.setIcon(icon)
@@ -118,18 +109,18 @@ class Equalizer(QtWidgets.QWidget):
             p_menu = QtWidgets.QMenu(menu)
             p_menu.setTitle(tr('presets'))
             p_menu.setIcon(QtGui.QIcon(':/images/eq_icon.png'))
-            save_as_preset = QtWidgets.QAction(tr('save_bands'))
+            save_as_preset = QtGui.QAction(tr('save_bands'))
             save_as_preset.triggered.connect(self.save_preset)
             save_as_preset.setIcon(QtGui.QIcon(':/images/add_icon.png'))
             p_menu.addAction(save_as_preset)
-            delete_preset = QtWidgets.QAction(tr('delete_preset'))
+            delete_preset = QtGui.QAction(tr('delete_preset'))
             delete_preset.triggered.connect(self.delete_preset)
             delete_preset.setIcon(QtGui.QIcon(':/images/close.png'))
             p_menu.addAction(delete_preset)
             if len(self.presets) > 0:
                 p_menu.addSection("")
                 for eq in self.presets:
-                    action = QtWidgets.QAction(eq['name'])
+                    action = QtGui.QAction(eq['name'])
                     action.triggered.connect(lambda: self.preset_apply(eq['items']))
                     action.setIcon(QtGui.QIcon(':/images/eq_icon.png'))
                     p_menu.addAction(action)
@@ -140,14 +131,19 @@ class Equalizer(QtWidgets.QWidget):
         menu.addAction(settings_action)
         menu.setMinimumWidth(200)
         pos = self.ui.bMenu.mapToGlobal(QtCore.QPoint(-170,30))
-        menu.exec_(pos)
+        menu.exec(pos)
 
     def save_preset(self):
         if not self.enable_presets: return
         name, res = QtWidgets.QInputDialog.getText(self, tr('save_eq_bands'), tr('enter_name'))
         for i in range(len(self.presets)):
             if name == self.presets[i]['name']:
-                QtWidgets.QMessageBox.warning(self, tr('error'), tr('preset_name_exists'))
+                if QtWidgets.QMessageBox.question(self, tr('preset_name_exists'), tr('change_preset')) == QtWidgets.QMessageBox.StandardButton.Yes:
+                    items = []
+                    for j in range(len(self.sliderlist)):
+                        items.append(self.sliderlist[j].pos - 15)
+                    self.presets[i]['items'] = items
+                    self.save_presets()
                 return
         if res and len(name) > 1:
             items = []

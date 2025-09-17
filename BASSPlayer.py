@@ -1,10 +1,11 @@
 from bass.pybass import *
-#from bass import pytags
+# from bass import pytags
 import ctypes
 from signal import Signal
 import platform
 import os
 from math import sqrt
+
 """
 Author Roganov G.V. roganovg@mail.ru
 """
@@ -12,10 +13,10 @@ Author Roganov G.V. roganovg@mail.ru
 avial_exts = ''
 NumFFTBands = 44
 NumEQBands = 10
-#EQBandWidth = [3, 4, 4, 4, 5, 6, 5, 4, 3, 3]
-#EQFreq = [80, 160, 320, 600, 1000, 3000, 6000, 10000, 12000, 14000]
-EQBandWidth = [6, 8, 14,  18,  21,  24,  28,   36,   44,   52]
-EQFreq      = [44, 80, 200, 400, 800, 1600, 3000, 6000, 10000, 14000]
+# EQBandWidth = [3, 4, 4, 4, 5, 6, 5, 4, 3, 3]
+# EQFreq = [80, 160, 320, 600, 1000, 3000, 6000, 10000, 12000, 14000]
+EQBandWidth = [6, 8, 14, 18, 21, 24, 28, 36, 44, 52]
+EQFreq = [44, 80, 200, 400, 800, 1600, 3000, 6000, 10000, 14000]
 
 PlayMode_Standby = 0
 PlayMode_Ready = 1
@@ -40,10 +41,26 @@ def crpl_libname(fn):
         return f'lib{fn}.so'
 
 
+def safe_bass_call(func, *args):
+    """Безопасный вызов BASS функций"""
+    last_error = ""
+    try:
+        result = func(*args)
+        if result == 0:  # BASS ошибка
+            error_code = BASS_ErrorGetCode()
+            if error_code != 0:
+                lasterror = f"BASS error {error_code} in {func.__name__}."
+        return result, last_error
+    except Exception as e:
+        last_error = f"Exception in {func.__name__}: {e}."
+        return 0, last_error
+
+
 class Library():
     def __init__(self, exts):
         self.exts = exts
         self.enabled = False
+        self.last_error = ""
 
     def load(self, fn, ext):
         return None
@@ -55,7 +72,8 @@ class BassLibrary(Library):
         self.enabled = True
 
     def load(self, fn, ext):
-        return BASS_StreamCreateFile(False, fn, 0, 0, 0)
+        result, self.last_error = safe_bass_call(BASS_StreamCreateFile, False, fn, 0, 0, 0)
+        return result
 
 
 class AC3Library(Library):
@@ -72,7 +90,8 @@ class AC3Library(Library):
 
     def load(self, fn, ext):
         if self.enabled:
-            return self.ac3.BASS_AC3_StreamCreateFile(False, fn, 0, 0, 0)
+            result, self.last_error = safe_bass_call(self.ac3.BASS_AC3_StreamCreateFile,False, fn, 0, 0, 0)
+            return result
         else:
             return None
 
@@ -95,9 +114,11 @@ class ACCLibrary(Library):
         if not self.enabled:
             return None
         if ext == '.aac':
-            return self.aac.BASS_AAC_StreamCreateFile(False, fn, 0, 0, 0)
+            result, self.last_error = safe_bass_call(self.aac.BASS_AAC_StreamCreateFile, False, fn, 0, 0, 0)
+            return result
         else:
-            return self.aac.BASS_MP4_StreamCreateFile(False, fn, 0, 0, 0)
+            result, self.last_error = safe_bass_call(self.aac.BASS_MP4_StreamCreateFile, False, fn, 0, 0, 0)
+            return result
 
 
 class WMALibrary(Library):
@@ -113,11 +134,12 @@ class WMALibrary(Library):
                 self.wma = pybasswma
 
     def load(self, fn, ext):
-        return self.wma.BASS_WMA_StreamCreateFile(False, fn, 0, 0, 0)
+        result, self.last_error = safe_bass_call(self.wma.BASS_WMA_StreamCreateFile,False, fn, 0, 0, 0)
+        return result
 
 
-#DOWNLOADPROC = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong)
-#DOWNLOADPROC = func_type(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_void_p)
+# DOWNLOADPROC = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong)
+# DOWNLOADPROC = func_type(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_void_p)
 
 def download_callback(buffer, length, downloaded, user):
     print(f"Загружено: {downloaded} байт из {length}")
@@ -130,6 +152,7 @@ class Libraries(list):
     def __init__(self):
         super(Libraries, self).__init__()
         self.append(BassLibrary())
+        self.last_error = ""
         print('Libraries init')
         global avial_exts
         acclib = ACCLibrary()
@@ -146,11 +169,15 @@ class Libraries(list):
     def load(self, fn, ext):
         for lib in self:
             if lib.enabled and ext in lib.exts:
-                return lib.load(fn, ext)
+                result = lib.load(fn, ext)
+                self.last_error = lib.last_error
+                return result
+        self.last_error = f"Ext {ext} is not found."
         return 0
 
     def load_url(self, url):
-        return BASS_StreamCreateURL(ctypes.c_char_p(url.encode('utf-8')), 0, 0, DOWNLOADPROC(0), 0)
+        result, self.last_error = safe_bass_call(BASS_StreamCreateURL, ctypes.c_char_p(url.encode('utf-8')), 0, 0, DOWNLOADPROC(0), 0)
+        return result
 
 
 class BandData:
@@ -158,6 +185,7 @@ class BandData:
         self.CenterFreq = CenterFreq
         self.Bandwidth = Bandwidth
         self.Gain = Gain
+
 
 '''
 proxy_ptr = ctypes.c_char_p("http://10.51.248.2:8080".encode())
@@ -193,15 +221,27 @@ def get_devices():
     return devices
 
 
+def onEndPlay(sync_handle, channel, data, user):
+    global player_instance
+    try:
+        if player_instance is not None:
+            if hasattr(player_instance, 'Channel') and player_instance.Channel == channel:
+                player_instance.stream_finished.emit()
+    except Exception as e:
+        print("error:", str(e))
+
+
 class BassPlayer:
     def __init__(self):
         global player_instance
         player_instance = self
         self.ChannelType = Channel_NotOpened
         self.Channel = 0
+        self._end_sync = 0
         self.eqbandcount = NumEQBands
         self.BassLoaded = BASS_Init(-1, 44100, 0, 0, 0)
         self.libraries = Libraries()
+
         self.BassInfoParam = BASS_INFO()
         self.EqualizerEnabled = False
         self.EQHandle = [0 for i in range(NumEQBands)]
@@ -232,6 +272,23 @@ class BassPlayer:
         if self.BassLoaded:
             BASS_Free()
 
+    def safe_bass_call(self, func, *args, error_msg=""):
+        """Безопасный вызов BASS функций"""
+        try:
+            result = func(*args)
+            if result == 0:  # BASS ошибка
+                error_code = BASS_ErrorGetCode()
+                if error_code != 0:
+                    func_name = str(func).split(' ')[1] if ' ' in str(func) else str(func)
+                    self.lasterror = f"BASS error {error_code} in {func_name}. {error_msg}"
+                    print(self.lasterror)
+            return result
+        except Exception as e:
+            func_name = str(func).split(' ')[1] if ' ' in str(func) else str(func)
+            self.lasterror = f"Exception in {func_name}: {e}. {error_msg}"
+            print(self.lasterror)
+            return 0
+
     def load(self, fn):
         if not self.BassLoaded:
             self.lasterror = 'BASS not loaded'
@@ -245,7 +302,7 @@ class BassPlayer:
         if 'http://' in fn or 'https://' in fn:
             self.Channel = self.libraries.load_url(fn)
             if self.Channel == 0:
-                self.lasterror = f'URL not loaded! Error code: {BASS_ErrorGetCode()}'
+                self.lasterror = f'URL not loaded! {self.libraries.last_error}'
                 self.status_changed.emit()
                 print(self.lasterror)
                 return False
@@ -260,7 +317,7 @@ class BassPlayer:
             binfn = fn.encode()
             self.Channel = self.libraries.load(binfn, ext)
             if self.Channel == 0:
-                self.lasterror = 'File not loaded!'
+                self.lasterror = f'File not loaded! {self.libraries.last_error}'
                 self.status_changed.emit()
                 print(self.lasterror)
                 return False
@@ -270,7 +327,9 @@ class BassPlayer:
 
         self.set_eqeffect(self.EqualizerEnabled)
         self.set_volume(self.volume)
-        BASS_ChannelSetSync(self.Channel, BASS_SYNC_END, 0, self.onEndPlay, 0)
+        # BASS_ChannelSetSync(self.Channel, BASS_SYNC_END, 0, self.onEndPlay, 0)
+        # self._end_sync = BASS_ChannelSetSync(self.Channel, BASS_SYNC_END, 0, SYNCPROC(onEndPlay), 0)
+        self._end_sync = self.safe_bass_call(BASS_ChannelSetSync, self.Channel, BASS_SYNC_END, 0, SYNCPROC(onEndPlay), 0)
         self.status_changed.emit()
         self.currentfilename = fn
         return True
@@ -285,9 +344,7 @@ class BassPlayer:
             v = 0
         self.volume = v
         if self.ChannelType == Channel_Stream or Channel_Internet:
-            BASS_ChannelSetAttribute(self.Channel, BASS_ATTRIB_VOL, v/100)
-
-            #return BASS_SetVolume(v/100)
+            self.safe_bass_call(BASS_ChannelSetAttribute, self.Channel, BASS_ATTRIB_VOL, v / 100)
 
     def play_pause(self):
         if self.ChannelType == Channel_NotOpened:
@@ -300,14 +357,14 @@ class BassPlayer:
 
     def play(self):
         if self.ChannelType == Channel_NotOpened: return
-        if BASS_ChannelPlay(self.Channel, False):
+        if self.safe_bass_call(BASS_ChannelPlay, self.Channel, False):
             self.PlayerMode = PlayMode_Playing
             self.status_changed.emit()
 
     def stop(self):
         if self.ChannelType == Channel_NotOpened: return
         if self.PlayerMode == PlayMode_Playing or self.PlayerMode == PlayMode_Paused:
-            BASS_ChannelStop(self.Channel)
+            self.safe_bass_call(BASS_ChannelStop, self.Channel)
             self.PlayerMode = PlayMode_Stopped
             if self.ChannelType == Channel_Stream:
                 BASS_ChannelSetPosition(self.Channel, 0, BASS_POS_BYTE)
@@ -318,48 +375,55 @@ class BassPlayer:
 
     def pause(self):
         if self.ChannelType == Channel_NotOpened: return
-        if BASS_ChannelPause(self.Channel):
+        if self.safe_bass_call(BASS_ChannelPause, self.Channel):
             self.PlayerMode = PlayMode_Paused
             self.status_changed.emit()
 
     def close(self):
         if self.ChannelType == Channel_NotOpened: return
+        if self._end_sync != 0:
+            try:
+               self.safe_bass_call(BASS_ChannelRemoveSync, self.Channel, self._end_sync)
+            except Exception as e:
+                print(f"Error removing sync: {e}")
+            finally:
+                self._end_sync = 0
         if self.EqualizerEnabled:
             for i in range(len(self.EQHandle)):
                 if self.EQHandle[i] != 0:
-                    BASS_ChannelRemoveFX(self.Channel, self.EQHandle[i])
+                    self.safe_bass_call(BASS_ChannelRemoveFX, self.Channel, self.EQHandle[i])
                     self.EQHandle[i] = 0
-        BASS_StreamFree(self.Channel)
+        self.safe_bass_call(BASS_StreamFree, self.Channel)
         self.Channel = 0
         self.ChannelType = Channel_NotOpened
         self.PlayerMode = PlayMode_Standby
 
-    def set_position(self, pos): #sec
+    def set_position(self, pos):  # sec
         if self.ChannelType == Channel_NotOpened: return
         if self.ChannelType == Channel_Stream:
-            SongPos = BASS_ChannelSeconds2Bytes(self.Channel, pos)
-            BASS_ChannelSetPosition(self.Channel, SongPos, BASS_POS_BYTE)
+            SongPos = self.safe_bass_call(BASS_ChannelSeconds2Bytes, self.Channel, pos)
+            self.safe_bass_call(BASS_ChannelSetPosition, self.Channel, SongPos, BASS_POS_BYTE)
 
     def get_position(self):
         if self.ChannelType == Channel_NotOpened: return 0
-        result = BASS_ChannelGetPosition(self.Channel, BASS_POS_BYTE)
+        result = self.safe_bass_call(BASS_ChannelGetPosition, self.Channel, BASS_POS_BYTE)
         if result < 0: result = 0
         if result == 0: return 0
-        return int(BASS_ChannelBytes2Seconds(self.Channel, result))
+        return int(self.safe_bass_call(BASS_ChannelBytes2Seconds, self.Channel, result))
 
-    #def getTimePos(self):
+    # def getTimePos(self):
     #    if self.ChannelType == Channel_NotOpened: return '0.00'
     #    pos = self.get_position()
     #    return self.secondsToTime(pos)
 
     def get_length(self):
         if self.ChannelType != Channel_Stream: return 0
-        result = BASS_ChannelGetLength(self.Channel, BASS_POS_BYTE)
+        result = self.safe_bass_call(BASS_ChannelGetLength, self.Channel, BASS_POS_BYTE)
         if result < 0: result = 0
         if result == 0: return 0
         return int(BASS_ChannelBytes2Seconds(self.Channel, result))
 
-    #def getTimeDuration(self):
+    # def getTimeDuration(self):
     #    if self.ChannelType == Channel_NotOpened: return '0.00'
     #    pos = self.get_length()
     #    return self.secondsToTime(pos)
@@ -371,7 +435,7 @@ class BassPlayer:
         if self.EqualizerEnabled:
             for i in range(len(self.EQHandle)):
                 if self.EQHandle[i] == 0:
-                    self.EQHandle[i] = BASS_ChannelSetFX(self.Channel, BASS_FX_DX8_PARAMEQ, 0)
+                    self.EQHandle[i] = self.safe_bass_call(BASS_ChannelSetFX, self.Channel, BASS_FX_DX8_PARAMEQ, 0)
                 param = BASS_DX8_PARAMEQ()
                 param.fGain = self.EQBands[i].Gain
                 param.fBandwidth = self.EQBands[i].Bandwidth
@@ -387,16 +451,16 @@ class BassPlayer:
         if enabled:
             for i in range(len(self.EQHandle)):
                 if self.EQHandle[i] == 0:
-                    self.EQHandle[i] = BASS_ChannelSetFX(self.Channel, BASS_FX_DX8_PARAMEQ, 0)
+                    self.EQHandle[i] = self.safe_bass_call(BASS_ChannelSetFX, self.Channel, BASS_FX_DX8_PARAMEQ, 0)
                 param = BASS_DX8_PARAMEQ()
                 param.fGain = self.EQBands[i].Gain
                 param.fBandwidth = self.EQBands[i].Bandwidth
                 param.fCenter = self.EQBands[i].CenterFreq
-                BASS_FXSetParameters(self.EQHandle[i], ctypes.pointer(param))
+                self.safe_bass_call(BASS_FXSetParameters, self.EQHandle[i], ctypes.pointer(param))
         else:
             for i in range(len(self.EQHandle)):
                 if self.EQHandle[i] != 0:
-                    BASS_ChannelRemoveFX(self.Channel, self.EQHandle[i])
+                    self.safe_bass_call(BASS_ChannelRemoveFX, self.Channel, self.EQHandle[i])
                     self.EQHandle[i] = 0
 
     def set_eqgain(self, index, gain):
@@ -413,7 +477,7 @@ class BassPlayer:
         param.fGain = self.EQBands[index].Gain
         param.fBandwidth = self.EQBands[index].Bandwidth
         param.fCenter = self.EQBands[index].CenterFreq
-        return BASS_FXSetParameters(self.EQHandle[index], ctypes.pointer(param))
+        return self.safe_bass_call(BASS_FXSetParameters, self.EQHandle[index], ctypes.pointer(param))
 
     def decreasefft(self):
         self.zerofft = True
@@ -426,24 +490,36 @@ class BassPlayer:
                     self.zerofft = False
 
     def get_spec_data(self):
-        if self.ChannelType == Channel_NotOpened or BASS_ChannelIsActive(self.Channel) != BASS_ACTIVE_PLAYING:
+        if self.ChannelType == Channel_NotOpened or self.safe_bass_call(BASS_ChannelIsActive, self.Channel) != BASS_ACTIVE_PLAYING:
             return None
         data = self.tspecdata()
-        fts = BASS_ChannelGetData(self.Channel, ctypes.pointer(data), self.spec_size)
+        fts = self.safe_bass_call(BASS_ChannelGetData, self.Channel, ctypes.pointer(data), self.spec_size)
         if fts == 0xffffffff:
             return None
         return data
+
+    def get_mini_fftdata(self):
+        if self.ChannelType == Channel_NotOpened:
+            return None
+        if self.safe_bass_call(BASS_ChannelIsActive, self.Channel) != BASS_ACTIVE_PLAYING:
+            return None
+        fftdata = self.tfftdata()
+        fts = self.safe_bass_call(BASS_ChannelGetData, self.Channel, ctypes.pointer(fftdata), BASS_DATA_FFT2048)
+        if fts == 0xffffffff:
+            self.lasterror = 'can not get fftdata return ffffffff'
+            return None
+        return max(fftdata[4:])
 
     def get_fftdata(self, scale=30):
         if self.ChannelType == Channel_NotOpened:
             self.decreasefft()
             return False
-        if BASS_ChannelIsActive(self.Channel) != BASS_ACTIVE_PLAYING:
+        if self.safe_bass_call(BASS_ChannelIsActive, self.Channel) != BASS_ACTIVE_PLAYING:
             self.decreasefft()
             return False
 
         fftdata = self.tfftdata()
-        fts = BASS_ChannelGetData(self.Channel, ctypes.pointer(fftdata), BASS_DATA_FFT2048)
+        fts = self.safe_bass_call(BASS_ChannelGetData, self.Channel, ctypes.pointer(fftdata), BASS_DATA_FFT2048)
         if fts == 0xffffffff:
             self.lasterror = 'can not get fftdata return ffffffff'
             self.decreasefft()
@@ -456,10 +532,10 @@ class BassPlayer:
             for k in range(self.fft_limits[i][0], self.fft_limits[i][1]):
                 if peak < fftdata[k]:
                     peak = fftdata[k]
-            f = round(peak**0.5 * scale_3)
+            f = round(peak ** 0.5 * scale_3)
             # Decrease the value of fftBands[i] smoothly for better looking
             if f > self.fftbands[i]:
-                  self.fftbands[i] = f
+                self.fftbands[i] = f
             else:
                 if self.fftbands[i] >= 2:
                     self.fftbands[i] -= 2
@@ -470,11 +546,12 @@ class BassPlayer:
     def get_eqfreq(self):
         return [b.CenterFreq for b in self.EQBands]
 
-    @SYNCPROC
-    def onEndPlay(synhandle, buff, length, user):
+    # @SYNCPROC
+
+    '''def onEndPlay(synhandle, buff, length, user):
         if player_instance != None:
             player_instance.stream_finished.emit()
-        #BASS_ChannelSetSync(self.Channel, BASS_SYNC_END, 0, onEndPlay, 0)
+        '''
 
     def get_meta(self):
         # if self.ChannelType == Channel_NotOpened:

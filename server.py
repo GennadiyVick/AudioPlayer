@@ -1,15 +1,15 @@
 """ Server class and send function for transfer between application instances. """
 import socket
 import os
-from PyQt5 import QtCore
+from PySide6 import QtCore
 import time
 
 default_port = 51283
 
 
 class DGramServer(QtCore.QObject):
-    onFinish = QtCore.pyqtSignal(str)
-    onRead = QtCore.pyqtSignal(str)
+    onFinish = QtCore.Signal(str)
+    onRead = QtCore.Signal(str)
 
     def __init__(self, thread, port=default_port):
         super().__init__()
@@ -23,28 +23,32 @@ class DGramServer(QtCore.QObject):
         try:
             self.sock.bind(self.ipport)
         except socket.error:
-            print('can not open port',self.ipport)
+            print('can not open port', self.ipport)
             self.onFinish.emit('Ошибка открытия порта, возможно он уже занят')
             self.thread.quit()
             self.thread = None
             return
         except Exception as e:
-            print('error', e)
+            print('error bind', e)
             self.onFinish.emit(f'Ошибка: {str(e)}')
             self.thread.quit()
             self.thread = None
             return
         self.keep_running = True
-
+        self.sock.settimeout(0.5)
         while self.keep_running:
-            data = self.sock.recvfrom(65536)
-            if len(data) > 0:
-                self.onRead.emit(data[0].decode('utf-8'))
-            else:
-                time.sleep(0.1)
+            try:
+                data = self.sock.recvfrom(65536)
+                if len(data) > 0:
+                    self.onRead.emit(data[0].decode('utf-8'))
+            except socket.timeout:
+                continue
+            except Exception as e:
+                print(f"Socket error: {e}")
+                break
         self.sock.close()
         self.onFinish.emit(self)
-        self.thread.quit()
+        self.thread.terminate()
         self.thread = None
 
 

@@ -1,9 +1,9 @@
-from PyQt5 import QtGui, QtCore,QtWidgets
+from PySide6 import QtGui, QtCore,QtWidgets
 import math
 
 
 class MVolume(QtWidgets.QWidget):
-    posChanged = QtCore.pyqtSignal(int)
+    posChanged = QtCore.Signal(int)
 
     def __init__(self, parent=None):
         super(MVolume, self).__init__(parent)
@@ -115,42 +115,41 @@ class MVolume(QtWidgets.QWidget):
     #events...
 
     def paintEvent(self, event):
-        painter = QtGui.QPainter(self)
-        w = self.width()
-        h = self.height()
-        if self.bg is not None:
-            x = (w - self.bg.width()) // 2
-            y = (h - self.bg.height()) // 2
-            painter.drawPixmap(QtCore.QRect(x, y, self.bg.width(), self.bg.height()), self.bg)
+        with QtGui.QPainter(self) as painter:
+            w = self.width()
+            h = self.height()
+            if self.bg is not None:
+                x = (w - self.bg.width()) // 2
+                y = (h - self.bg.height()) // 2
+                painter.drawPixmap(QtCore.QRect(x, y, self.bg.width(), self.bg.height()), self.bg)
 
-        x, y = 1, 1
-        w -= 2
-        h -= 2
-        drawing_rect = QtCore.QRect(x, y, w, h)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
-        painter.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
-        gradient = QtGui.QConicalGradient()
-        gradient.setCenter(drawing_rect.center())
-        gradient.setAngle(self.gradientangle)
-        l = len(self.color_gradient)-1
-        for i, color in enumerate(self.color_gradient):
-            gradient.setColorAt(i/l, color)
+            x, y = 1, 1
+            w -= 2
+            h -= 2
+            drawing_rect = QtCore.QRect(x, y, w, h)
+            painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+            painter.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
+            gradient = QtGui.QConicalGradient()
+            gradient.setCenter(drawing_rect.center())
+            gradient.setAngle(self.gradientangle)
+            l = len(self.color_gradient)-1
+            for i, color in enumerate(self.color_gradient):
+                gradient.setColorAt(i/l, color)
 
-        pen = QtGui.QPen(QtGui.QBrush(gradient), self.linewidth)
-        pen.setCapStyle(QtCore.Qt.RoundCap)
-        painter.setPen(pen)
-        painter.drawArc(drawing_rect, int(self.startangle * 16), int(-self.currentAngle * 16))
-        if self.knob is not None:
-            x = (w - self.knob.width()) // 2
-            y = (h - self.knob.height()) // 2
-            ox = self.width() // 2
-            oy = self.height() // 2
-            painter.translate(ox, oy)
-            painter.rotate(self.currentAngle-135)
-            painter.translate(-ox, -oy)
-            painter.drawPixmap(QtCore.QRect(x, y, self.knob.width(), self.knob.height()), self.knob)
-    
+            pen = QtGui.QPen(QtGui.QBrush(gradient), self.linewidth)
+            pen.setCapStyle(QtCore.Qt.RoundCap)
+            painter.setPen(pen)
+            painter.drawArc(drawing_rect, int(self.startangle * 16), int(-self.currentAngle * 16))
+            if self.knob is not None:
+                x = (w - self.knob.width()) // 2
+                y = (h - self.knob.height()) // 2
+                ox = self.width() // 2
+                oy = self.height() // 2
+                painter.translate(ox, oy)
+                painter.rotate(self.currentAngle-135)
+                painter.translate(-ox, -oy)
+                painter.drawPixmap(QtCore.QRect(x, y, self.knob.width(), self.knob.height()), self.knob)
+
     def resizeEvent(self, event):
         self.update()
 
@@ -160,7 +159,6 @@ class MVolume(QtWidgets.QWidget):
             self.oldAngle = self.angleFromXY(event.x(),event.y())
             if self.oldAngle < 0:
                 self.oldAngle = 360.0 + self.oldAngle
-
 
     def mouseMoveEvent(self, event):
         if event.buttons() == QtCore.Qt.LeftButton:
