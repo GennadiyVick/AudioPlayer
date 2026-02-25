@@ -22,7 +22,7 @@ from tray_panel_menu import TrayPanelWidget
 from link_dialog import show_url_dialog
 from file_dialog import FileDialog
 
-VERSION = '2.6'
+VERSION = '2.6.5'
 __version__ = VERSION
 
 
@@ -98,6 +98,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
             self.player.EQBands[i].CenterFreq = int(sets.value(f'band_{i}_freq', self.player.EQBands[i].CenterFreq))
             self.player.EQBands[i].Bandwidth = int(sets.value(f'band_{i}_width', self.player.EQBands[i].Bandwidth))
         sets.endGroup()
+        self.player.proxy = sets.value("Main/proxy", "")
         self.actionPlayPause = None
         self.serv = None
         # связываем сингалы/события с слотами/процедурами
@@ -324,7 +325,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
     def update_play_info(self):
         fn = self.player.currentfilename
         if self.player.ChannelType == Channel_Internet:
-            self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
+            self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'))
             text = 'Play from url.'
             for i in range(self.model.rowCount()):
                 if fn == self.model.item(i).fn:
@@ -336,30 +337,40 @@ class AudioPlayer(QtWidgets.QMainWindow):
         i = fn.rfind('.')
         if i > 0:
             ext = fn[i:].lower()
-            if ext == '.mp3':
-                mp3info = MP3Data(fn, with_cover=True)
-                if len(mp3info.artist) > 0 and len(mp3info.title) > 0:
-                    self.ui.l_info.setText(mp3info.artist+' - '+mp3info.title)
-                elif len(mp3info.title) > 0:
-                    self.ui.l_info.setText(mp3info.title)
-                else:
-                    self.ui.l_info.setText(os.path.basename(fn))
-                if mp3info.image is not None:
-                    try:
-                        pixmap = QtGui.QPixmap()
-                        pixmap.loadFromData(mp3info.image)
-                        self.ui.l_image.setPixmap(pixmap)
-                    except Exception as e:
-                        print(str(e))
-                        self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
-                else:
-                    self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
+
+            mp3info = MP3Data(fn, ext, with_cover=True)
+            # mp3info.
+            if len(mp3info.artist) > 0 and len(mp3info.title) > 0:
+                self.ui.l_info.setText(mp3info.artist+' - '+mp3info.title)
+            elif len(mp3info.title) > 0:
+                self.ui.l_info.setText(mp3info.title)
             else:
-                self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
                 self.ui.l_info.setText(os.path.basename(fn))
+            data = ''
+            if mp3info.bit:
+                data = f'<p>{tr("bitrate")}<span style="color: #def;">{mp3info.bit}</p>'
+            if mp3info.freq:
+                data += f'<p>{tr("freq")}<span style="color: #def;">{mp3info.freq}</p>'
+            if mp3info.genre:
+                data += f'<p>{tr("genre")}<span style="color: #def;">{mp3info.genre}</p>'
+            if mp3info.album:
+                data += f'<p>{tr("album")}<span style="color: #def;">{mp3info.album}</p>'
+            if mp3info.image:
+                try:
+                    pixmap = QtGui.QPixmap()
+                    pixmap.loadFromData(mp3info.image)
+                    self.ui.coverwidget.load_mp3_data(pixmap, data)
+                except Exception as e:
+                    print(str(e))
+                    self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'), data)
+            else:
+                self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'), data)
+            #else:
+            #    self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'))
+            #    self.ui.l_info.setText(os.path.basename(fn))
         else:
             self.ui.l_info.setText(os.path.basename(fn))
-            self.ui.l_image.setPixmap(QtGui.QPixmap(':/images/logo.png'))
+            self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'))
 
     def play(self):
         if not self.player.play_pause():
@@ -467,6 +478,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), title)
         item.fn = url
         self.model.appendRow(item)
+        self.savePlayList()
 
     def addFilePlayList(self):
         exts = self.player.exts.replace('.', ' *.').strip().replace(' ', ',')
@@ -497,6 +509,8 @@ class AudioPlayer(QtWidgets.QMainWindow):
                     item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), os.path.basename(fn))
                     item.fn = fn
                     self.model.appendRow(item)
+        self.savePlayList()
+
 
     def addPlayList(self):
         text, ok = QtWidgets.QInputDialog.getText(self, tr("add_playlist"), tr("enter_playlist_name"),
@@ -752,8 +766,8 @@ class AudioPlayer(QtWidgets.QMainWindow):
         with open(fn, 'r') as f:
             for filename in f:
                 filename = filename.rstrip('\n')
-                if '\9' in filename:
-                    url, title = filename.split('\9')
+                if '\t' in filename:
+                    url, title = filename.split('\t')
                     item = QtGui.QStandardItem(QtGui.QIcon(":/images/playlist_icon.png"), title)
                     item.fn = url
                 else:
@@ -774,7 +788,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
             for i in range(self.model.rowCount()):
                 fn = self.model.item(i).fn
                 if fn.startswith('http'):
-                    fl.write(fn+"\9"+self.model.item(i).text()+'\n')
+                    fl.write(fn+"\t"+self.model.item(i).text()+'\n')
                 else:
                     fl.write(fn + '\n')
 
@@ -786,6 +800,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         sets.setValue("Main/top", p.y())
         sets.setValue("Main/width", self.width())
         sets.setValue("Main/height", self.height())
+        sets.setValue("Main/proxy", self.player.proxy)
         sets.setValue("AUDIO/volume", self.vol.position)
         if self.ui.comboBox.currentIndex() < 1:
             sets.setValue("AUDIO/playlist", "")
@@ -803,12 +818,12 @@ class AudioPlayer(QtWidgets.QMainWindow):
     def loadSets(self, sets):
         x = int(sets.value("Main/left", 0))
         y = int(sets.value("Main/top", 0))
-        w = int(sets.value("Main/width", 0))
+        # w = int(sets.value("Main/width", 0))
         h = int(sets.value("Main/height", 0))
         if x != 0 and y != 0:
             self.move(x, y)
-        if w != 0 and h != 0:
-            self.resize(w, h)
+        if h != 0:
+            self.resize(self.width(), h)
         self.vol.setPos(int(sets.value("AUDIO/volume", self.vol.position)))
         self.player.set_volume(self.vol.position)
         self.player.EqualizerEnabled = sets.value("General/EQ_enabled", "true") == "true"

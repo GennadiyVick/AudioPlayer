@@ -20,11 +20,12 @@ DOWNLOADPROC = pybass.DOWNLOADPROC
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
 
 if platform.system().lower() == 'windows':
-	fn = os.path.join(os.getcwd(), 'bass_ac3.dll')
+	fn = os.path.join(pybass.BASS_LIB_DIR, 'bass_ac3.dll')
 	bass_ac3_module = ctypes.WinDLL(fn)
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_ac3_module = ctypes.CDLL('./libbass_ac3.so')
+	fn = os.path.join(pybass.BASS_LIB_DIR, 'libbass_ac3.so')
+	bass_ac3_module = ctypes.CDLL(fn)
 	func_type = ctypes.CFUNCTYPE
 
 

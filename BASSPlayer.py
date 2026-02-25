@@ -15,8 +15,8 @@ NumFFTBands = 44
 NumEQBands = 10
 # EQBandWidth = [3, 4, 4, 4, 5, 6, 5, 4, 3, 3]
 # EQFreq = [80, 160, 320, 600, 1000, 3000, 6000, 10000, 12000, 14000]
-EQBandWidth = [6, 8, 14, 18, 21, 24, 28, 36, 44, 52]
-EQFreq = [44, 80, 200, 400, 800, 1600, 3000, 6000, 10000, 14000]
+EQBandWidth = [9, 7, 6, 5, 5, 5, 6, 8, 9, 11]
+EQFreq = [31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]
 
 PlayMode_Standby = 0
 PlayMode_Ready = 1
@@ -49,14 +49,15 @@ def safe_bass_call(func, *args):
         if result == 0:  # BASS ошибка
             error_code = BASS_ErrorGetCode()
             if error_code != 0:
-                lasterror = f"BASS error {error_code} in {func.__name__}."
+                last_error = f"BASS error {error_code} in called function."
         return result, last_error
     except Exception as e:
-        last_error = f"Exception in {func.__name__}: {e}."
+        #last_error = f"Exception in {func.__name__}: {e}."
+        last_error = "Exception in call function: "+str(e)
         return 0, last_error
 
 
-class Library():
+class Library:
     def __init__(self, exts):
         self.exts = exts
         self.enabled = False
@@ -79,7 +80,7 @@ class BassLibrary(Library):
 class AC3Library(Library):
     def __init__(self):
         super(AC3Library, self).__init__('.ac3')
-        if os.path.isfile(crpl_libname('bass_ac3')):
+        if os.path.isfile(os.path.join(BASS_LIB_DIR, crpl_libname('bass_ac3'))):
             try:
                 from bass import pybass_ac3
             except Exception as e:
@@ -99,11 +100,11 @@ class AC3Library(Library):
 class ACCLibrary(Library):
     def __init__(self):
         super(ACCLibrary, self).__init__('.aac.m4a.m4p')
-        if os.path.isfile(crpl_libname('bass_aac')):
+        if os.path.isfile(os.path.join(BASS_LIB_DIR, crpl_libname('bass_aac'))):
             try:
                 from bass import pybass_aac
             except:
-                print('bass_aac library not exists')
+                print('bass_aac library not exists or error import')
             else:
                 self.enabled = True
                 self.aac = pybass_aac
@@ -124,7 +125,7 @@ class ACCLibrary(Library):
 class WMALibrary(Library):
     def __init__(self):
         super(WMALibrary, self).__init__('.wma')
-        if os.path.isfile(crpl_libname('basswma')):
+        if os.path.isfile(os.path.join(BASS_LIB_DIR, crpl_libname('basswma'))):
             try:
                 from bass import pybasswma
             except:
@@ -175,7 +176,14 @@ class Libraries(list):
         self.last_error = f"Ext {ext} is not found."
         return 0
 
-    def load_url(self, url):
+    def load_url(self, url, proxy=""):
+        if proxy:
+            proxy_url_bytes = proxy.encode('utf-8')
+            try:
+                result = BASS_SetConfigPtr(BASS_CONFIG_NET_PROXY, ctypes.c_char_p(proxy_url_bytes))
+                print("set proxy result:", result)
+            except Exception as e:
+                print("error call BASS_SetConfig:", str(e))
         result, self.last_error = safe_bass_call(BASS_StreamCreateURL, ctypes.c_char_p(url.encode('utf-8')), 0, 0, DOWNLOADPROC(0), 0)
         return result
 
@@ -241,7 +249,7 @@ class BassPlayer:
         self.eqbandcount = NumEQBands
         self.BassLoaded = BASS_Init(-1, 44100, 0, 0, 0)
         self.libraries = Libraries()
-
+        self.proxy = ''
         self.BassInfoParam = BASS_INFO()
         self.EqualizerEnabled = False
         self.EQHandle = [0 for i in range(NumEQBands)]
@@ -300,7 +308,7 @@ class BassPlayer:
         self.EQHandle = [0 for i in range(NumEQBands)]
         self.fftbands = [0 for i in range(NumFFTBands)]
         if 'http://' in fn or 'https://' in fn:
-            self.Channel = self.libraries.load_url(fn)
+            self.Channel = self.libraries.load_url(fn, self.proxy)
             if self.Channel == 0:
                 self.lasterror = f'URL not loaded! {self.libraries.last_error}'
                 self.status_changed.emit()

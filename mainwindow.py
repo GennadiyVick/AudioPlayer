@@ -4,6 +4,7 @@ from mywidgets import MyComboBox, MyListView, CaptionWidget, VerSizeWidget, Imag
 from viswidget import VisWidget
 # from viswidget3 import VisualWidget
 from lang import tr
+from coverinfowidget import CoverInfoWidget
 
 
 #def labelstyle(images):
@@ -98,30 +99,37 @@ class Ui_MainWindow(object):
         self.w_info_vlo.setSpacing(0)
         self.w_info_vlo.setObjectName("w_info_vlo")
         # image
-        self.l_image_hlo = QtWidgets.QHBoxLayout()
-        self.l_image_hlo.setContentsMargins(0, 0, 0, 0)
-        self.l_image_hlo.setSpacing(0)
-        self.l_image_hlo.setObjectName("l_image_hlo")
-        self.l_image = ImageWidget(self.w_info)
-        self.l_image.setEnabled(True)
+        #self.l_image_hlo = QtWidgets.QHBoxLayout()
+        #self.l_image_hlo.setContentsMargins(0, 0, 0, 0)
+        #self.l_image_hlo.setSpacing(0)
+        #self.l_image_hlo.setObjectName("l_image_hlo")
+        #self.l_image = ImageWidget(self.w_info)
+        self.coverwidget = CoverInfoWidget(self.w_info)
+        self.coverwidget.setMaximumSize(500, 180)
+        #self.l_image.setEnabled(True)
         #self.l_image.setAlignment(QtCore.Qt.AlignCenter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.l_image.sizePolicy().hasHeightForWidth())
-        self.l_image.setSizePolicy(sizePolicy)
+        #sizePolicy.setHeightForWidth(self.l_image.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(self.coverwidget.sizePolicy().hasHeightForWidth())
+        #self.l_image.setSizePolicy(sizePolicy)
+        self.coverwidget.setSizePolicy(sizePolicy)
         #self.l_image.setText("")
-        self.l_image.setObjectName("l_image")
-        self.l_image.setMinimumSize(QtCore.QSize(180, 180))
-        self.l_image.setMaximumSize(QtCore.QSize(180, 180))
-        self.l_image_hlo.addWidget(self.l_image)
+        #self.l_image.setObjectName("l_image")
+        self.coverwidget.setObjectName('coverwidget')
+        #self.l_image.setMinimumSize(QtCore.QSize(180, 180))
+        #self.l_image.setMaximumSize(QtCore.QSize(180, 180))
+        #self.l_image_hlo.addWidget(self.l_image)
         #self.w_info_vlo.addWidget(self.l_image)
-        self.w_info_vlo.addLayout(self.l_image_hlo)
-        self.l_image.setPixmap(QtGui.QPixmap(":/images/logo.png"))
+        #self.w_info_vlo.addLayout(self.l_image_hlo)
+        #self.l_image.setPixmap(QtGui.QPixmap(":/images/logo.png"))
+        self.w_info_vlo.addWidget(self.coverwidget)
 
         # l_info music file title
         self.l_info = QtWidgets.QLabel(self.w_info)
         self.l_info.setMinimumSize(QtCore.QSize(0, 18))
+        self.l_info.setMaximumSize(QtCore.QSize(300, 50))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.l_info.setFont(font)

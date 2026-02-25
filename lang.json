@@ -47,5 +47,9 @@
 "delete_preset":  {"default":  "Delete preset", "ru": "Удалить пресет"},
 "select_preset":  {"default":  "Select preset to remove", "ru": "Выбери пресет для удаления"},
 "preset_name_exists":  {"default":  "This preset already exists!", "ru": "Такой пресет уже существует!"},
-"change_preset": {"default":  "Change current preset?", "ru": "Изменить пресет?"}
+"change_preset": {"default":  "Change current preset?", "ru": "Изменить пресет?"},
+"bitrate": {"default":  "Bitrate: {}", "ru": "Битрейт: "},
+"freq": {"default":  "Freq.: {}", "ru": "Частота: "},
+"genre": {"default":  "Genre: {}", "ru": "Жанр: "},
+"album": {"default":  "Album: {}", "ru": "Альбом: "}
 }

@@ -30,11 +30,12 @@ BASS_FILEPROCS = pybass.BASS_FILEPROCS
 HWMENCODE = ctypes.c_ulong# WMA encoding handle
 
 if platform.system().lower() == 'windows':
-    fn = os.path.join(os.getcwd(), 'basswma.dll')
+    fn = os.path.join(pybass.BASS_LIB_DIR, 'basswma.dll')
     basswma_module = ctypes.WinDLL(fn)
     func_type = ctypes.WINFUNCTYPE
 else:
-    basswma_module = ctypes.CDLL('basswma')
+    fn = os.path.join(pybass.BASS_LIB_DIR, 'basswma')
+    basswma_module = ctypes.CDLL(fn)
     func_type = ctypes.CFUNCTYPE
 
 

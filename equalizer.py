@@ -39,7 +39,6 @@ class Equalizer(QtWidgets.QWidget):
                     self.presets = json.load(f)
             except (FileNotFoundError, json.JSONDecodeError):
                 self.presets = []
-
         self.ui.cbEnable.setChecked(self.player.EqualizerEnabled)
         self.band_title_l = []
         freqs = self.player.get_eqfreq()
@@ -116,14 +115,18 @@ class Equalizer(QtWidgets.QWidget):
             delete_preset = QtGui.QAction(tr('delete_preset'))
             delete_preset.triggered.connect(self.delete_preset)
             delete_preset.setIcon(QtGui.QIcon(':/images/close.png'))
+            submenus = []
             p_menu.addAction(delete_preset)
             if len(self.presets) > 0:
+                i = 0
                 p_menu.addSection("")
                 for eq in self.presets:
-                    action = QtGui.QAction(eq['name'])
-                    action.triggered.connect(lambda: self.preset_apply(eq['items']))
-                    action.setIcon(QtGui.QIcon(':/images/eq_icon.png'))
-                    p_menu.addAction(action)
+                    submenus.append(QtGui.QAction(eq['name']))
+                    submenus[i].setObjectName(f'preset_action_{i}')
+                    submenus[i].triggered.connect(lambda checked, items=eq['items']: self.preset_apply(items))
+                    submenus[i].setIcon(QtGui.QIcon(':/images/eq_icon.png'))
+                    p_menu.addAction(submenus[i])
+                    i += 1
             menu.addMenu(p_menu)
         menu.addSection("")
         menu.addAction(reset_action)

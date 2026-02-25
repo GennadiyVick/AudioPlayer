@@ -28,5 +28,5 @@ class Lang:
 lang = Lang()
 
 
-def tr(s):
+def tr(s) -> str:
     return lang.tr(s)

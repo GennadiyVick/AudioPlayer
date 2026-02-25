@@ -268,3 +268,5 @@ QDialog {
 
 #bUp {background:  url(":/images/folder_up.png") no-repeat center center; border: none;}
 #bUp:hover {background:  url(":/images/folder_up_h.png") no-repeat center center; border: none;}
+
+#label_info {padding: 4px; font-size: 9pt;}

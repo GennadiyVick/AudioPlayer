@@ -20,21 +20,22 @@ DOWNLOADPROC = pybass.DOWNLOADPROC
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
 
 if platform.system().lower() == 'windows':
-    fn = os.path.join(os.getcwd(), 'bass_aac.dll')
+    fn = os.path.join(pybass.BASS_LIB_DIR, 'bass_aac.dll')
     bass_aac_module = ctypes.WinDLL(fn)
     func_type = ctypes.WINFUNCTYPE
 else:
-    bass_aac_module = ctypes.CDLL('./libbass_aac.so')
+    fn = os.path.join(pybass.BASS_LIB_DIR, 'libbass_aac.so')
+    bass_aac_module = ctypes.CDLL(fn)
     func_type = ctypes.CFUNCTYPE
 
 
 # Additional BASS_SetConfig options
-BASS_CONFIG_MP4_VIDEO = 0x10700 # play the audio from MP4 videos
+BASS_CONFIG_MP4_VIDEO = 0x10700  # play the audio from MP4 videos
 
 # Additional tags available from BASS_StreamGetTags (for MP4 files)
-BASS_TAG_MP4 = 7 # MP4/iTunes metadata
+BASS_TAG_MP4 = 7  # MP4/iTunes metadata
 
-BASS_AAC_STEREO = 0x400000 # downmatrix to stereo
+BASS_AAC_STEREO = 0x400000  # downmatrix to stereo
 
 # BASS_CHANNELINFO type
 BASS_CTYPE_STREAM_AAC = 0x10b00 # AAC

@@ -20,10 +20,12 @@ Starting with version 2.4.0 the `mutagen` module is required for operation.
 First, you need to install the Python interpreter if you don't have it already.
 You can download the distribution from [python.org](https://www.python.org/downloads/) and double-click the installation
 after installation, you need to install the `PySide6` and `mutagen` modules, to do this in the console enter 
+
 ```console
 python -m pip install PySide6
 python -m pip install mutagen
 ```
+
 the program will download and install the module.
 Then copy bass.dll to AudioPlayer.py directory from libs.zip/windows/x64, if you need support m4a, acc and wma formats see such libraryes in libs.zip/windows/aac and wma
 
