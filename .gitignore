@@ -2,9 +2,7 @@
 /res
 /.gitignore
 /*.plt
-/vlclib_player.zip
 /*.so
 /AudioPlayer.desktop
 /.idea
 /bass/__pycache__
-/isualwidget.py
