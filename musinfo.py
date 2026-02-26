@@ -70,7 +70,7 @@ class MP3Data(Metadata):
                     if 'APIC' in key:
                         self.image = self.info.get(key).data
                         break
-        elif ext == '.m4a' or ext == 'mp4':
+        elif ext == '.m4a' or ext == 'mp4' or ext == '.aac':
             audio = MP4(filename)
             self.title = get_mp4_tag(audio, "\xa9nam")
             self.artist = get_mp4_tag(audio, "\xa9ART")

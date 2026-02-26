@@ -1,6 +1,6 @@
-from PySide6 import QtGui, QtCore,QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 from colorsys import hsv_to_rgb
-from BASSPlayer import NumFFTBands
+from bassplayer import NumFFTBands
 
 
 def get_color_spectr():

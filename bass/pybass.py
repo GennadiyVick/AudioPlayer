@@ -71,7 +71,7 @@ else:
 
 
 #BASS_LIB_DIR = app_path
-BASS_LIB_DIR = os.path.curdir
+BASS_LIB_DIR = os.getcwd()
 
 if platform.system().lower() == 'windows':
     fn = os.path.join(BASS_LIB_DIR, 'bass.dll')

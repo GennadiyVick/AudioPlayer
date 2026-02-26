@@ -15,13 +15,13 @@ from equalizer import Equalizer
 from server import DGramServer, send
 from lang import tr
 from musinfo import  MP3Data
-from BASSPlayer import BassPlayer, PlayMode_Playing, PlayMode_Paused, Channel_Internet
+from bassplayer import BassPlayer, PlayMode_Playing, PlayMode_Paused, Channel_Internet
 from m3uparser import parse_m3u_from_file
 from tray_panel_menu import TrayPanelWidget
 from link_dialog import show_url_dialog
 from file_dialog import FileDialog
 
-VERSION = '2.6.6'
+VERSION = '2.6.7'
 __version__ = VERSION
 
 
@@ -335,9 +335,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         i = fn.rfind('.')
         if i > 0:
             ext = fn[i:].lower()
-
             mp3info = MP3Data(fn, ext, with_cover=True)
-            # mp3info.
             if len(mp3info.artist) > 0 and len(mp3info.title) > 0:
                 self.ui.l_info.setText(mp3info.artist+' - '+mp3info.title)
             elif len(mp3info.title) > 0:
@@ -363,9 +361,6 @@ class AudioPlayer(QtWidgets.QMainWindow):
                     self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'), data)
             else:
                 self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'), data)
-            #else:
-            #    self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'))
-            #    self.ui.l_info.setText(os.path.basename(fn))
         else:
             self.ui.l_info.setText(os.path.basename(fn))
             self.ui.coverwidget.load_mp3_data(QtGui.QPixmap(':/images/logo.png'))
@@ -396,6 +391,10 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.play_filename(self.model.item(i).fn, i, True)
 
     def onPlayerStreamFinish(self):
+        QtCore.QMetaObject.invokeMethod(self, "processStreamFinish", QtCore.Qt.QueuedConnection)
+
+    @QtCore.Slot()
+    def processStreamFinish(self):
         if self.loop == self.LOOP_OFF:
             self.player.stop()
             return
@@ -935,10 +934,17 @@ def main():
             QtWidgets.QMessageBox.warning(None, tr('attention'), tr('one_instance'))
         return -42
     app.setWindowIcon(QtGui.QIcon(":/images/icon.png"))
-    if not os.path.isfile('style.qss'):
+    fn = os.path.join(os.getcwd(), 'style.qss')
+    if not os.path.isfile(fn):
+        if getattr(sys, 'frozen', False):
+            app_path = os.path.dirname(sys.executable)
+        else:
+            app_path = os.path.dirname(os.path.abspath(__file__))
+        fn = os.path.join(app_path, 'style.qss')
+    if not os.path.isfile(fn):
         print('file of style.qss is not found')
         return 1
-    with open('style.qss') as f:
+    with open(fn) as f:
         style = f.read()
         app.setStyleSheet(style)
     main_window = AudioPlayer(app)

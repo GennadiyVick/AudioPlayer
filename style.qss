@@ -156,7 +156,7 @@ QListView, QListWidget, QTableView, QTableWidget {
 	color: #bbb;
 	border-radius: 10px;
 }
-QListView::item:selected { background: #9400606b; color: #fff; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
+QListView::item:selected { background: #7400606b; color: #fff; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
 QListView::item:hover { background: rgba(30, 50, 80, 60); color: #ccc; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
 QListView::item:selected:hover {background: #84002040; color:  aqua; border-style: inset; border-width: 1px; border-color: #60404050; border-radius: 6px;}
 
