@@ -1,12 +1,11 @@
 #!/usr/bin/python3
 """
-Audio player using lib bass and PySide6
+Audio player using audio lib BASS and PySide6 for gui
 Author Roganov G.V. roganovg@mail.ru
 """
 
 import sys
 import os
-os.chdir(os.path.dirname(os.path.realpath(__file__)))  # need for bass library loading
 
 from PySide6 import QtGui, QtCore, QtWidgets
 from mainwindow import Ui_MainWindow
@@ -22,7 +21,7 @@ from tray_panel_menu import TrayPanelWidget
 from link_dialog import show_url_dialog
 from file_dialog import FileDialog
 
-VERSION = '2.6.5'
+VERSION = '2.6.6'
 __version__ = VERSION
 
 
@@ -142,7 +141,6 @@ class AudioPlayer(QtWidgets.QMainWindow):
         self.tray_panel.next_click.connect(self.next)
         self.tray_panel.prev_click.connect(self.prev)
         self.tray_panel.volume_changed.connect(self.tray_panel_volume_changed)
-
 
     # Необходим для приёма данных от вторичных запущенных экземпляров приложений,
     # когда ассоциируем аудио файлы с этим приложением.
@@ -348,13 +346,13 @@ class AudioPlayer(QtWidgets.QMainWindow):
                 self.ui.l_info.setText(os.path.basename(fn))
             data = ''
             if mp3info.bit:
-                data = f'<p>{tr("bitrate")}<span style="color: #def;">{mp3info.bit}</p>'
+                data = f'<p>{tr("bitrate")}<span style="color: #dff;">{mp3info.bit}</p>'
             if mp3info.freq:
-                data += f'<p>{tr("freq")}<span style="color: #def;">{mp3info.freq}</p>'
+                data += f'<p>{tr("freq")}<span style="color: #dff;">{mp3info.freq}</p>'
             if mp3info.genre:
-                data += f'<p>{tr("genre")}<span style="color: #def;">{mp3info.genre}</p>'
+                data += f'<p>{tr("genre")}<span style="color: #dff;">{mp3info.genre}</p>'
             if mp3info.album:
-                data += f'<p>{tr("album")}<span style="color: #def;">{mp3info.album}</p>'
+                data += f'<p>{tr("album")}<span style="color: #dff;">{mp3info.album}</p>'
             if mp3info.image:
                 try:
                     pixmap = QtGui.QPixmap()
@@ -804,8 +802,12 @@ class AudioPlayer(QtWidgets.QMainWindow):
         sets.setValue("AUDIO/volume", self.vol.position)
         if self.ui.comboBox.currentIndex() < 1:
             sets.setValue("AUDIO/playlist", "")
+            sets.setValue('AUDIO/playing_item', 0)
         else:
             sets.setValue("AUDIO/playlist", self.ui.comboBox.itemText(self.ui.comboBox.currentIndex()))
+            i = self.ui.listView.selectedIndexes()[0].row() if len(self.ui.listView.selectedIndexes()) > 0 else 0
+            sets.setValue('AUDIO/playing_item', i)
+
         sets.beginGroup('equalizer_gains')
         for i in range(self.player.eqbandcount):
             sets.setValue(f'band_{i}', self.player.EQBands[i].Gain)
@@ -816,6 +818,7 @@ class AudioPlayer(QtWidgets.QMainWindow):
         sets.setValue("General/Loop", self.loop)
 
     def loadSets(self, sets):
+
         x = int(sets.value("Main/left", 0))
         y = int(sets.value("Main/top", 0))
         # w = int(sets.value("Main/width", 0))
@@ -844,6 +847,10 @@ class AudioPlayer(QtWidgets.QMainWindow):
                     if pl == self.ui.comboBox.itemText(i):
                         self.ui.comboBox.setCurrentIndex(i)
                         self.loadPlayList()
+                        selected_index = int(sets.value('AUDIO/playing_item', 0))
+                        if self.model.rowCount() > 0:
+                            self.ui.listView.selectionModel().select(self.model.index(selected_index, 0), QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Toggle)
+                            self.ui.listView.scrollTo(self.model.index(selected_index, 0))
                         break
             else:
                 self.ui.comboBox.setCurrentIndex(0)

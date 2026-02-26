@@ -154,12 +154,16 @@ class Libraries(list):
         super(Libraries, self).__init__()
         self.append(BassLibrary())
         self.last_error = ""
-        print('Libraries init')
         global avial_exts
+        #print('Libraries init')
         acclib = ACCLibrary()
+        #print('ACCLibrary init:', acclib.enabled)
         if acclib.enabled:
             self.append(acclib)
-        self.append(AC3Library())
+        ac3lib = AC3Library()
+        #print('AC3Library init:', acclib.enabled)
+        if ac3lib.enabled:
+            self.append(ac3lib)
         if platform.system().lower() == 'windows':
             self.append(WMALibrary())
 
@@ -352,7 +356,8 @@ class BassPlayer:
             v = 0
         self.volume = v
         if self.ChannelType == Channel_Stream or Channel_Internet:
-            self.safe_bass_call(BASS_ChannelSetAttribute, self.Channel, BASS_ATTRIB_VOL, v / 100)
+            if self.ChannelType != Channel_NotOpened:
+                self.safe_bass_call(BASS_ChannelSetAttribute, self.Channel, BASS_ATTRIB_VOL, v / 100)
 
     def play_pause(self):
         if self.ChannelType == Channel_NotOpened:
