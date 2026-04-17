@@ -1,7 +1,8 @@
 from bass.pybass import *
 # from bass import pytags
 import ctypes
-from signal import Signal
+#from signal import Signal
+from PySide6.QtCore import QObject, Signal
 import platform
 import os
 from math import sqrt
@@ -233,18 +234,21 @@ def get_devices():
     return devices
 
 
+@SYNCPROC
 def onEndPlay(sync_handle, channel, data, user):
-    global player_instance
-    try:
-        if player_instance is not None:
-            if hasattr(player_instance, 'Channel') and player_instance.Channel == channel:
-                player_instance.stream_finished.emit()
-    except Exception as e:
-        print("error:", str(e))
+    if player_instance:
+        player_instance.stream_finished.emit(channel)
 
 
-class BassPlayer:
+EndProc = SYNCPROC(onEndPlay)
+
+class BassPlayer(QObject):
+    status_changed = Signal()
+    stream_finished = Signal(ctypes.c_ulong)
+
+
     def __init__(self):
+        super().__init__()
         global player_instance
         player_instance = self
         self.ChannelType = Channel_NotOpened
@@ -261,8 +265,6 @@ class BassPlayer:
         self.fftbands = [0 for i in range(NumFFTBands)]
         self.exts = ''
         self.lasterror = ''
-        self.status_changed = Signal()
-        self.stream_finished = Signal()
         self.PlayerMode = PlayMode_Standby
         self.currentfilename = ''
         self.volume = 100
@@ -279,6 +281,7 @@ class BassPlayer:
         self.spec_size = SPEC_WIDTH * 2 * 4
         self.tspecdata = ctypes.c_float * SPEC_WIDTH * 2
         self.exts = avial_exts
+        self.self_ref = ctypes.py_object(self)
 
     def __del__(self):
         if self.BassLoaded:
@@ -341,7 +344,7 @@ class BassPlayer:
         self.set_volume(self.volume)
         # BASS_ChannelSetSync(self.Channel, BASS_SYNC_END, 0, self.onEndPlay, 0)
         # self._end_sync = BASS_ChannelSetSync(self.Channel, BASS_SYNC_END, 0, SYNCPROC(onEndPlay), 0)
-        self._end_sync = self.safe_bass_call(BASS_ChannelSetSync, self.Channel, BASS_SYNC_END, 0, SYNCPROC(onEndPlay), 0)
+        self._end_sync = self.safe_bass_call(BASS_ChannelSetSync, self.Channel, BASS_SYNC_END, 0, EndProc, 0)
         self.status_changed.emit()
         self.currentfilename = fn
         return True

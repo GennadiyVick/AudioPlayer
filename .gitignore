@@ -4,5 +4,6 @@
 /*.plt
 /*.so
 /AudioPlayer.desktop
+/AudioPlayer.sh
 /.idea
 /bass/__pycache__

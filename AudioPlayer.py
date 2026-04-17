@@ -390,11 +390,10 @@ class AudioPlayer(QtWidgets.QMainWindow):
             i = self.model.rowCount() - 1
         self.play_filename(self.model.item(i).fn, i, True)
 
-    def onPlayerStreamFinish(self):
-        QtCore.QMetaObject.invokeMethod(self, "processStreamFinish", QtCore.Qt.QueuedConnection)
-
-    @QtCore.Slot()
-    def processStreamFinish(self):
+    def onPlayerStreamFinish(self, channel):
+        if self.player.Channel != channel:
+            print('channel != channel in pre_stream_finished')
+            return
         if self.loop == self.LOOP_OFF:
             self.player.stop()
             return
