@@ -2,7 +2,9 @@
 ## Based on the BASS library
 https://www.un4seen.com/bass.html
 
-![screenshot](https://gitlab.com/GennadiyVick/audioplayer/raw/master/image.png)
+
+![screenshot](./image.png)
+![screenshot](image.png)
 ## 📦 Some features:
 - Dragging a file/s into the window - replaces everything in the selected playlist
 - Dragging a file/s into the window while holding down CTRL - adds to the end of the selected playlist
