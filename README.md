@@ -1,9 +1,6 @@
 # Audio player v.2.6 🎧
 ## Based on the BASS library
 https://www.un4seen.com/bass.html
-
-
-![screenshot](./image.png)
 ![screenshot](image.png)
 ## 📦 Some features:
 - Dragging a file/s into the window - replaces everything in the selected playlist
