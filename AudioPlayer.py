@@ -920,6 +920,13 @@ class AudioPlayer(QtWidgets.QMainWindow):
                 return
         super().changeEvent(event)
 
+    #def showEvent(self, event):
+    #    shadow = QtWidgets.QGraphicsDropShadowEffect(self.ui.centralwidget)
+    #    shadow.setBlurRadius(18)
+    #    shadow.setColor(QtGui.QColor(0, 0, 0, 220))  # Альфа 100-120 (255 вызовет клиппинг)
+    #    shadow.setOffset(0, 0)  # В Qt6 обязательно два параметра
+    #    self.ui.centralwidget.setGraphicsEffect(shadow)
+
 
 def main():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"

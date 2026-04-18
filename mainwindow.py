@@ -42,14 +42,20 @@ class Ui_MainWindow(object):
         MainWindow.setWindowFlags(MainWindow.windowFlags() & ~QtCore.Qt.WindowMaximizeButtonHint)
         MainWindow.setWindowTitle("AudioPlayer")
         MainWindow.setContentsMargins(14, 14, 14, 14)
+        #MainWindow.setContentsMargins(0, 0, 0, 0)
+        #self.main_widget = QtWidgets.QWidget(MainWindow)
+        #self.main_widget.setObjectName('main_widget')
+        #self.main_layout = QtWidgets.QVBoxLayout(self.main_widget)
+        #self.main_layout.setContentsMargins(14, 14, 14, 14)
+
 
         # create central widget and main vertical layout
-        effect = QtWidgets.QGraphicsDropShadowEffect()
-        effect.setColor(QtGui.QColor(0, 0, 0, 255))
-        effect.setOffset(0)
-        effect.setBlurRadius(18)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        effect = QtWidgets.QGraphicsDropShadowEffect(self.centralwidget)
+        effect.setColor(QtGui.QColor(0, 0, 0, 200))
+        effect.setOffset(0, 0)
+        effect.setBlurRadius(18)
         self.centralwidget.setGraphicsEffect(effect)
         self.central_widget_vlo = QtWidgets.QVBoxLayout(self.centralwidget)
         self.central_widget_vlo.setSpacing(2)
@@ -286,6 +292,7 @@ class Ui_MainWindow(object):
         self.bottom_widget.setObjectName('bottom_widget')
         self.bottom_widget.setCursor(QtGui.QCursor(QtCore.Qt.SizeVerCursor))
         self.central_widget_vlo.addWidget(self.bottom_widget)
+        #self.main_layout.addWidget(self.centralwidget)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)

@@ -22,7 +22,10 @@ class Lang:
 
     def tr(self, s):
         if s in self.dic:
-            return self.dic[s][self.lang]
+            if self.lang in self.dic[s]:
+                return self.dic[s][self.lang]
+            else:
+                return next(iter(self.dic[s].values()), None)
         else:
             return s
 
